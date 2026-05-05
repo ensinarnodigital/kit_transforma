@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estruturador de Minicurso — Microlearning</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,400&family=Epilogue:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--border:#2e2e50;--border2:#3a3a60;--text:#e8e8f4;--muted:#8888aa;--coral:#e8624a;--coral-d:#c44a34;--coral-l:rgba(232,98,74,.15);--coral-b:rgba(232,98,74,.3);--mint:#3abfa8;--mint-l:rgba(58,191,168,.15);--mint-b:rgba(58,191,168,.35);--gold:#f0b429;--gold-l:rgba(240,180,41,.15);--gold-b:rgba(240,180,41,.35);--violet:#9b8afb;--violet-l:rgba(155,138,251,.15);--violet-b:rgba(155,138,251,.35);--shadow:0 8px 32px rgba(0,0,0,.4);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.65;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:52px 24px 44px;text-align:center;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 90% at 15% 50%,rgba(232,98,74,.12),transparent 65%),radial-gradient(ellipse 60% 80% at 85% 50%,rgba(58,191,168,.10),transparent 65%);}
+.hdr{position:relative;z-index:1;max-width:700px;margin:0 auto;}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--coral-l);border:1px solid var(--coral-b);color:var(--coral);font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:700;padding:6px 18px;border-radius:20px;margin-bottom:20px;}
+.header h1{font-family:'Fraunces',serif;font-size:clamp(28px,6vw,48px);font-weight:900;color:#fff;margin-bottom:12px;line-height:1.1;}
+.header h1 span{color:var(--coral);font-style:italic;}
+.header p{color:var(--muted);font-size:14px;font-weight:300;max-width:520px;margin:0 auto;}
+.prog{background:var(--surface);border-bottom:1px solid var(--border);padding:13px 24px;position:sticky;top:0;z-index:100;display:none;}
+.prog-inner{max-width:700px;margin:0 auto;}
+.prog-top{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+.prog-track{background:var(--border);border-radius:6px;height:5px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--coral),var(--gold));border-radius:6px;transition:width .5s ease;width:0;}
+.pdots{display:flex;gap:6px;margin-top:10px;}
+.pdot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s;}
+.pdot.done{background:var(--mint);}
+.pdot.active{background:var(--coral);}
+.main{max-width:700px;margin:0 auto;padding:32px 16px 100px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:34px 28px;margin-bottom:22px;display:none;box-shadow:var(--shadow);animation:rise .4s ease;}
+.card.active{display:block;}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.c-phase{font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:700;color:var(--coral);margin-bottom:8px;}
+.c-title{font-family:'Fraunces',serif;font-size:23px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.2;}
+.c-sub{font-size:13px;color:var(--muted);margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.callout{border-radius:12px;padding:15px 17px;margin-bottom:20px;font-size:13px;line-height:1.65;}
+.callout.coral{background:var(--coral-l);border:1px solid var(--coral-b);}
+.callout.mint{background:var(--mint-l);border:1px solid var(--mint-b);}
+.callout.gold{background:var(--gold-l);border:1px solid var(--gold-b);}
+.callout.violet{background:var(--violet-l);border:1px solid var(--violet-b);}
+.callout strong{display:block;margin-bottom:4px;font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+.callout.coral strong{color:var(--coral);}
+.callout.mint strong{color:var(--mint);}
+.callout.gold strong{color:var(--gold);}
+.callout.violet strong{color:var(--violet);}
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.field .hint{font-size:12px;color:var(--muted);margin-bottom:7px;font-style:italic;}
+.field input,.field textarea,.field select{width:100%;padding:12px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'Epilogue',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-l);}
+.field input::placeholder,.field textarea::placeholder{color:#44445a;}
+.field textarea{resize:vertical;min-height:86px;}
+.field select option{background:var(--surface2);}
+
+/* OBJECTIVE FORMULA */
+.obj-box{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;}
+.obj-box h4{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mint);font-weight:700;margin-bottom:14px;}
+.formula-grid{display:grid;grid-template-columns:1fr 28px 1fr 28px 1fr;gap:6px;align-items:center;}
+.formula-part{}
+.formula-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;text-align:center;}
+.formula-inp{width:100%;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Epilogue',sans-serif;font-size:12px;outline:none;text-align:center;transition:border-color .2s;}
+.formula-inp:focus{border-color:var(--mint);}
+.formula-inp::placeholder{color:#44445a;font-size:11px;}
+.formula-sep{color:var(--coral);font-size:18px;font-weight:900;text-align:center;}
+.formula-prev{margin-top:14px;padding:12px 14px;background:var(--bg);border-radius:8px;border:1px solid var(--border);font-size:13px;color:var(--muted);font-style:italic;line-height:1.6;}
+
+/* MODULE BUILDER */
+.mod-list{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;}
+.mod-item{background:var(--surface2);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s;}
+.mod-item:focus-within{border-color:var(--coral);}
+.mod-head{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;user-select:none;}
+.mod-num{width:32px;height:32px;border-radius:10px;background:var(--coral-l);border:1px solid var(--coral-b);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--coral);flex-shrink:0;}
+.mod-preview{flex:1;font-size:13px;font-weight:500;color:var(--text);}
+.mod-toggle{color:var(--muted);font-size:14px;transition:transform .2s;}
+.mod-toggle.open{transform:rotate(180deg);}
+.mod-body{padding:0 15px 15px;display:none;}
+.mod-body.open{display:block;}
+.mod-body .field{margin-bottom:12px;}
+.mod-body label{font-size:12px;}
+.mod-body input,.mod-body textarea{font-size:13px;padding:10px 12px;}
+.mod-body textarea{min-height:68px;}
+.lesson-list{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+.lesson-row{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;}
+.lesson-n{font-size:11px;color:var(--muted);font-weight:700;min-width:18px;}
+.lesson-inp{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Epilogue',sans-serif;font-size:13px;}
+.lesson-inp::placeholder{color:#44445a;}
+.lesson-dur{width:58px;background:transparent;border:none;outline:none;color:var(--muted);font-family:'Epilogue',sans-serif;font-size:11px;text-align:right;}
+.lesson-dur::placeholder{color:#33335a;}
+.lesson-rm{color:#444466;cursor:pointer;font-size:15px;transition:color .2s;}
+.lesson-rm:hover{color:var(--coral);}
+.add-lesson{display:flex;align-items:center;gap:6px;background:none;border:1px dashed var(--border2);border-radius:8px;padding:7px 12px;color:var(--muted);font-size:12px;cursor:pointer;width:100%;margin-top:6px;transition:all .2s;font-family:'Epilogue',sans-serif;}
+.add-lesson:hover{border-color:var(--coral);color:var(--coral);}
+.add-mod{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface2);border:1.5px dashed var(--border2);border-radius:12px;padding:13px;color:var(--muted);font-size:14px;cursor:pointer;width:100%;font-family:'Epilogue',sans-serif;font-weight:700;transition:all .2s;}
+.add-mod:hover{border-color:var(--coral);color:var(--coral);background:var(--coral-l);}
+.stats{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.stat{flex:1;min-width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px;text-align:center;}
+.stat-v{font-size:22px;font-weight:700;color:var(--coral);font-family:'Fraunces',serif;}
+.stat-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+/* FORMAT GRID */
+.format-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fmt-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:5px;}
+.fmt-card:hover,.fmt-card.sel{border-color:var(--coral);background:var(--coral-l);}
+.fmt-card input{display:none;}
+.fmt-icon{font-size:20px;}
+.fmt-name{font-size:13px;font-weight:700;color:var(--text);}
+.fmt-time{font-size:11px;color:var(--muted);}
+
+/* ASSESS */
+.assess{display:flex;flex-direction:column;gap:8px;}
+.assess-opt{display:flex;align-items:flex-start;gap:12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:12px 13px;cursor:pointer;transition:all .2s;font-size:13px;}
+.assess-opt:hover,.assess-opt.sel{border-color:var(--violet);background:var(--violet-l);}
+.assess-opt input{margin-top:3px;accent-color:var(--violet);flex-shrink:0;}
+.assess-opt strong{display:block;font-size:13px;margin-bottom:2px;}
+.assess-opt span{font-size:12px;color:var(--muted);}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:7px;}
+.chk-row{display:flex;align-items:flex-start;gap:12px;padding:10px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;}
+.chk-row:hover{border-color:var(--mint);}
+.chk-row.sel{border-color:var(--mint);background:var(--mint-l);}
+.chk-row input{margin-top:2px;accent-color:var(--mint);flex-shrink:0;}
+.chk-row span{color:var(--text);line-height:1.5;}
+.chk-row.sel span{color:var(--mint);}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+.btn{padding:13px 26px;border-radius:10px;font-family:'Epilogue',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-back{background:var(--surface2);border:1.5px solid var(--border);color:var(--muted);}
+.btn-back:hover{border-color:var(--text);color:var(--text);}
+.btn-fwd{flex:1;justify-content:center;background:linear-gradient(135deg,var(--coral),var(--coral-d));color:#fff;box-shadow:0 4px 20px rgba(232,98,74,.35);}
+.btn-fwd:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(232,98,74,.45);}
+.btn-done{flex:1;justify-content:center;background:linear-gradient(135deg,var(--mint),#2a9f8a);color:#fff;box-shadow:0 4px 20px rgba(58,191,168,.35);}
+.btn-done:hover{transform:translateY(-1px);}
+
+/* WELCOME / REPORT */
+.welcome,.report-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px 32px;box-shadow:var(--shadow);}
+.welcome{text-align:center;}
+.big-icon{font-size:62px;display:block;margin-bottom:20px;}
+.welcome h2{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:12px;}
+.welcome p{color:var(--muted);font-size:14px;margin-bottom:14px;max-width:460px;margin-left:auto;margin-right:auto;}
+.pill-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:18px 0;}
+.pill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;}
+.report-panel{display:none;}
+.report-panel.active{display:block;}
+.report-header{text-align:center;margin-bottom:22px;}
+.report-header h2{font-family:'Fraunces',serif;font-size:24px;color:#fff;margin-bottom:8px;}
+.report-header p{color:var(--muted);font-size:13px;line-height:1.6;}
+.report-box{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:20px;font-size:13px;line-height:1.9;white-space:pre-wrap;font-family:'Epilogue',sans-serif;color:var(--text);max-height:520px;overflow-y:auto;}
+.report-loading{text-align:center;padding:40px;color:var(--muted);}
+.spinner{display:inline-block;width:36px;height:36px;border:3px solid var(--coral-l);border-top-color:var(--coral);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.report-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;}
+.btn-copy{flex:1;padding:13px;border-radius:10px;font-family:'Epilogue',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--coral),var(--coral-d));color:#fff;border:none;transition:all .2s;}
+.btn-copy:hover{transform:translateY(-1px);}
+.btn-print{flex:1;padding:13px;border-radius:10px;font-family:'Epilogue',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--mint),#2a9f8a);color:#fff;border:none;transition:all .2s;}
+.btn-print:hover{transform:translateY(-1px);}
+.btn-restart{padding:13px 20px;border-radius:10px;font-family:'Epilogue',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface2);color:var(--muted);border:1.5px solid var(--border);}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;}
+.toast.show{opacity:1;}
+@media print{.header,.prog,.btn-row,.report-actions,.welcome{display:none!important;}.report-panel{display:block!important;box-shadow:none;border:none;padding:0;}.report-box{max-height:none;border:none;background:#fff;color:#000;}body{background:#fff;color:#000;}}
+@media(max-width:480px){.main{padding:18px 10px 80px;}.card,.welcome,.report-panel{padding:22px 14px;}.format-grid{grid-template-columns:1fr;}.btn-row,.report-actions{flex-direction:column;}.btn-back,.btn-fwd,.btn-done,.btn-copy,.btn-print{width:100%;justify-content:center;}.formula-grid{grid-template-columns:1fr;}.formula-sep{transform:rotate(90deg);}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="hdr">
+    <div class="badge">📚 Kit de Transformação do Conhecimento</div>
+    <h1>Estruturador de <span>Minicurso</span></h1>
+    <p>Da ideia à arquitetura completa. Transforme seu conhecimento em módulos de microlearning com impacto real.</p>
+  </div>
+</header>
+<div class="prog" id="prog">
+  <div class="prog-inner">
+    <div class="prog-top"><span id="stepLbl">Fase 1 de 6</span><span id="pctLbl">0%</span></div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="pdots" id="pdots"></div>
+  </div>
+</div>
+<main class="main">
+  <!-- WELCOME -->
+  <div class="welcome" id="welcomeCard">
+    <span class="big-icon">🏗️</span>
+    <h2>Construa sua arquitetura de aprendizagem</h2>
+    <p>Este estruturador aplica os princípios do microlearning para transformar décadas de experiência em um minicurso focado, eficaz e memorável.</p>
+    <div class="pill-row"><div class="pill">⏱ 25–40 minutos</div><div class="pill">🧱 6 fases</div><div class="pill">📄 Plano de Curso gerado ao final</div></div>
+    <p style="font-size:13px;">Ao final, seu <strong style="color:var(--coral)">Plano Completo do Minicurso</strong> será gerado automaticamente — pronto para copiar ou imprimir.</p>
+    <button class="btn btn-fwd" onclick="startTool()" style="margin-top:22px;padding:16px 44px;">🚀 Começar a estruturar</button>
+  </div>
+
+  <!-- FASE 1: FUNDAÇÃO -->
+  <div class="card" id="s1">
+    <div class="c-phase">Fase 1 de 6 — Fundação</div>
+    <div class="c-title">Os alicerces do seu minicurso</div>
+    <div class="c-sub">Antes de construir qualquer módulo, precisamos definir a base: o que é, para quem e qual transformação promove.</div>
+    <div class="callout coral"><strong>🎯 O que é microlearning?</strong>Entrega de conhecimento em pequenas doses focadas — cada unidade ensinando UMA habilidade. Aulas de 3 a 8 minutos, conteúdo objetivo, aplicação imediata. Menos é mais — mas o menos precisa ser o que importa.</div>
+    <div class="field"><label>Qual é o título provisório do seu minicurso?</label><input type="text" id="titulo" placeholder="Ex: Os Primeiros 90 Dias como Líder: Sobreviva e Prospere"></div>
+    <div class="field"><label>Em uma frase: qual transformação o aluno vai viver ao concluir o curso?</label><input type="text" id="transformacao" placeholder="Ex: De gestor inseguro a líder com autoridade e método nos primeiros 90 dias no cargo"></div>
+    <div class="field"><label>Quem é exatamente o aluno ideal?</label><input type="text" id="aluno" placeholder="Ex: Gerentes de primeira viagem em empresas de médio porte, com 30–45 anos"></div>
+    <div class="field"><label>Qual é o pré-requisito mínimo para fazer o curso?</label><input type="text" id="prereq" placeholder="Ex: Ter assumido (ou estar prestes a assumir) um cargo de gestão pela primeira vez"></div>
+    <div class="field"><label>Qual é a duração total ideal para o seu minicurso?</label>
+      <select id="duracao">
+        <option value="">— selecione —</option>
+        <option value="Pílula: até 30 minutos (3–5 aulas)">Pílula: até 30 minutos (3–5 aulas)</option>
+        <option value="Compacto: ~1 hora (6–10 aulas)">Compacto: ~1 hora (6–10 aulas)</option>
+        <option value="Essencial: ~2 horas (10–16 aulas)">Essencial: ~2 horas (10–16 aulas)</option>
+        <option value="Completo: ~4 horas (16–24 aulas)">Completo: ~4 horas (16–24 aulas)</option>
+      </select>
+    </div>
+    <div class="btn-row"><button class="btn btn-fwd" onclick="goTo(2)">Avançar →</button></div>
+  </div>
+
+  <!-- FASE 2: OBJETIVO -->
+  <div class="card" id="s2">
+    <div class="c-phase">Fase 2 de 6 — Objetivo</div>
+    <div class="c-title">O grande objetivo de aprendizagem</div>
+    <div class="c-sub">O objetivo define o que o aluno será capaz de FAZER depois — não o que ele vai saber.</div>
+    <div class="callout mint"><strong>📐 A fórmula ABCD para objetivos eficazes</strong><strong style="color:var(--text);text-transform:none;letter-spacing:0;font-size:13px">A</strong>udiência + <strong style="color:var(--text);text-transform:none;letter-spacing:0;font-size:13px">B</strong>ehavior (comportamento) + <strong style="color:var(--text);text-transform:none;letter-spacing:0;font-size:13px">C</strong>ondição + <strong style="color:var(--text);text-transform:none;letter-spacing:0;font-size:13px">D</strong>egree (critério de sucesso)</div>
+    <div class="obj-box">
+      <h4>🧩 Monte seu objetivo de aprendizagem</h4>
+      <div class="formula-grid">
+        <div class="formula-part"><div class="formula-lbl">Audiência</div><input class="formula-inp" id="obj_a" placeholder="O gestor de 1ª viagem..." oninput="updateObj()"></div>
+        <div class="formula-sep">+</div>
+        <div class="formula-part"><div class="formula-lbl">Comportamento</div><input class="formula-inp" id="obj_b" placeholder="será capaz de..." oninput="updateObj()"></div>
+        <div class="formula-sep">+</div>
+        <div class="formula-part"><div class="formula-lbl">Condição + Critério</div><input class="formula-inp" id="obj_c" placeholder="usando o modelo, com clareza para..." oninput="updateObj()"></div>
+      </div>
+      <div class="formula-prev" id="objPrev">✍️ <em>Seu objetivo aparecerá aqui conforme você preenche os campos...</em></div>
+    </div>
+    <div class="field"><label>Quais são os 3 a 5 resultados práticos que o aluno conquista ao final?</label><div class="hint">Use verbos de ação: criar, aplicar, estruturar, identificar, evitar...</div><textarea id="resultados" placeholder="1. Criar um plano de integração nos primeiros 30 dias&#10;2. Identificar os stakeholders críticos&#10;3. Estruturar reuniões 1:1 eficazes&#10;4. Evitar os 5 erros mais comuns de novos gestores"></textarea></div>
+    <div class="field"><label>Qual é a pergunta central que o curso responde?</label><div class="hint">A única dúvida que seu curso resolve completamente.</div><input type="text" id="pergunta" placeholder='Ex: "Como me estabeleço como líder respeitado sem microgerenciar minha equipe?"'></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(1)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(3)">Avançar →</button></div>
+  </div>
+
+  <!-- FASE 3: MÓDULOS -->
+  <div class="card" id="s3">
+    <div class="c-phase">Fase 3 de 6 — Arquitetura</div>
+    <div class="c-title">Construindo seus módulos</div>
+    <div class="c-sub">Cada módulo é uma etapa da jornada do aluno. No microlearning: foco único, começo, meio e fim claros.</div>
+    <div class="callout gold"><strong>🧱 Princípios dos módulos em microlearning</strong>• Cada módulo resolve UM problema específico<br>• Aulas de 3 a 8 minutos (uma ideia por aula)<br>• Progressão: do simples ao complexo<br>• Inicie com o "por que importa" e termine com uma ação prática</div>
+    <div class="mod-list" id="modList"></div>
+    <button class="add-mod" onclick="addMod()">＋ Adicionar módulo</button>
+    <div class="stats">
+      <div class="stat"><div class="stat-v" id="st-mod">0</div><div class="stat-l">Módulos</div></div>
+      <div class="stat"><div class="stat-v" id="st-aula">0</div><div class="stat-l">Aulas</div></div>
+      <div class="stat"><div class="stat-v" id="st-min">0</div><div class="stat-l">Min estimados</div></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(2)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(4)">Avançar →</button></div>
+  </div>
+
+  <!-- FASE 4: FORMATO -->
+  <div class="card" id="s4">
+    <div class="c-phase">Fase 4 de 6 — Formato</div>
+    <div class="c-title">Como você vai ensinar?</div>
+    <div class="c-sub">O formato impacta diretamente a adesão e a retenção do aluno.</div>
+    <div class="field"><label>Qual será o formato principal das suas aulas?</label>
+      <div class="format-grid">
+        <label class="fmt-card" onclick="selFmt(this,'Vídeo com câmera')"><input type="radio" name="fmt"><span class="fmt-icon">🎥</span><span class="fmt-name">Vídeo com câmera</span><span class="fmt-time">Alta conexão, 3–8 min</span></label>
+        <label class="fmt-card" onclick="selFmt(this,'Voz + Slides')"><input type="radio" name="fmt"><span class="fmt-icon">📊</span><span class="fmt-name">Voz + Slides</span><span class="fmt-time">Produção simples, ideal para iniciantes</span></label>
+        <label class="fmt-card" onclick="selFmt(this,'Áudio / Podcast')"><input type="radio" name="fmt"><span class="fmt-icon">🎙️</span><span class="fmt-name">Áudio / Podcast</span><span class="fmt-time">Escuta em movimento</span></label>
+        <label class="fmt-card" onclick="selFmt(this,'Texto + Atividades')"><input type="radio" name="fmt"><span class="fmt-icon">📖</span><span class="fmt-name">Texto + Atividades</span><span class="fmt-time">Profundo, referência permanente</span></label>
+        <label class="fmt-card" onclick="selFmt(this,'Formato misto')"><input type="radio" name="fmt"><span class="fmt-icon">🔀</span><span class="fmt-name">Formato misto</span><span class="fmt-time">Variedade, maior engajamento</span></label>
+        <label class="fmt-card" onclick="selFmt(this,'Ao vivo / Síncrono')"><input type="radio" name="fmt"><span class="fmt-icon">🔴</span><span class="fmt-name">Ao vivo / Síncrono</span><span class="fmt-time">Alta interação, turmas fechadas</span></label>
+      </div>
+      <input type="hidden" id="fmt_val">
+    </div>
+    <div class="field"><label>Como você descreveria o tom e a linguagem do seu curso?</label><textarea id="tom" placeholder="Ex: Direto e prático, sem academicismo. Uso exemplos reais da minha trajetória. Falo como conversa de mentor, não como professor de MBA..."></textarea></div>
+    <div class="field"><label>Que materiais de apoio você vai oferecer?</label>
+      <div class="checklist" id="mat_list">
+        <label class="chk-row" onclick="toggleChk(this,'mat_val','mat_list')"><input type="checkbox" value="Checklists e listas de verificação"><span>📋 Checklists e listas de verificação</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'mat_val','mat_list')"><input type="checkbox" value="Templates e modelos prontos para usar"><span>📄 Templates e modelos prontos para usar</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'mat_val','mat_list')"><input type="checkbox" value="E-book ou guia de referência"><span>📘 E-book ou guia de referência</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'mat_val','mat_list')"><input type="checkbox" value="Exercícios práticos por módulo"><span>✍️ Exercícios práticos por módulo</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'mat_val','mat_list')"><input type="checkbox" value="Estudos de caso reais"><span>🔍 Estudos de caso reais</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'mat_val','mat_list')"><input type="checkbox" value="Planilhas ou ferramentas de diagnóstico"><span>📊 Planilhas ou ferramentas de diagnóstico</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'mat_val','mat_list')"><input type="checkbox" value="Acesso a grupo/comunidade de alunos"><span>💬 Acesso a grupo/comunidade de alunos</span></label>
+      </div>
+      <input type="hidden" id="mat_val">
+    </div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(3)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(5)">Avançar →</button></div>
+  </div>
+
+  <!-- FASE 5: AVALIAÇÃO -->
+  <div class="card" id="s5">
+    <div class="c-phase">Fase 5 de 6 — Avaliação</div>
+    <div class="c-title">Como o aluno saberá que aprendeu?</div>
+    <div class="c-sub">A avaliação no microlearning não é uma prova — é a confirmação de que a transformação aconteceu.</div>
+    <div class="callout violet"><strong>📏 Avaliação no microlearning</strong>A melhor avaliação é pedir ao aluno para FAZER algo com o que aprendeu. "Aplique o modelo X em sua realidade" vale mais do que qualquer quiz.</div>
+    <div class="field"><label>Como você vai avaliar o aprendizado dos alunos?</label>
+      <div class="assess">
+        <label class="assess-opt" onclick="selAssess(this,'Projeto prático final')"><input type="radio" name="aval"><div><strong>🛠️ Projeto prático final</strong><span>O aluno entrega algo real ao final do curso. Alta transformação.</span></div></label>
+        <label class="assess-opt" onclick="selAssess(this,'Desafios por módulo')"><input type="radio" name="aval"><div><strong>🎯 Desafios por módulo</strong><span>Cada módulo tem uma atividade prática curta. Engajamento contínuo.</span></div></label>
+        <label class="assess-opt" onclick="selAssess(this,'Quiz de verificação')"><input type="radio" name="aval"><div><strong>❓ Quiz de verificação</strong><span>Perguntas ao final de cada aula. Bom para medir retenção de conceitos.</span></div></label>
+        <label class="assess-opt" onclick="selAssess(this,'Diário de reflexão')"><input type="radio" name="aval"><div><strong>💭 Diário de reflexão</strong><span>O aluno registra aprendizados e próximos passos. Ideal para temas comportamentais.</span></div></label>
+        <label class="assess-opt" onclick="selAssess(this,'Sem avaliação formal')"><input type="radio" name="aval"><div><strong>🚫 Sem avaliação formal</strong><span>Conteúdo de referência, o aluno aplica no próprio ritmo.</span></div></label>
+      </div>
+      <input type="hidden" id="aval_val">
+    </div>
+    <div class="field"><label>Descreva a atividade principal de avaliação</label><textarea id="aval_desc" placeholder="Ex: Ao final do módulo 3, o aluno monta seu Mapa de Stakeholders e identifica suas 3 prioridades de relacionamento nos primeiros 30 dias..."></textarea></div>
+    <div class="field"><label>Como você vai manter o aluno engajado durante o curso?</label><textarea id="engajamento" placeholder="Ex: Aulas curtas com 1 ação ao final de cada uma. Grupo no WhatsApp. Check-in semanal por áudio. Certificado ao concluir..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(4)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(6)">Avançar →</button></div>
+  </div>
+
+  <!-- FASE 6: PRODUÇÃO -->
+  <div class="card" id="s6">
+    <div class="c-phase">Fase 6 de 6 — Produção</div>
+    <div class="c-title">Pronto para produzir?</div>
+    <div class="c-sub">Antes de gravar a primeira aula, veja o checklist completo de pré-produção.</div>
+    <div class="callout coral"><strong>🎬 A regra de ouro</strong>Feito é melhor que perfeito. Um curso com áudio de celular que entrega valor real supera um curso impecável mas vazio. Comece com o que tem. Refine na segunda versão.</div>
+    <div class="field"><label>Checklist de Pré-produção — marque o que você já tem ou resolveu</label>
+      <div class="checklist" id="chk_list">
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Nicho definido e declaração de posicionamento pronta"><span>✅ Nicho definido e declaração de posicionamento pronta</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Objetivo de aprendizagem claro e verificável"><span>✅ Objetivo de aprendizagem claro e verificável</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Estrutura de módulos e aulas definida"><span>✅ Estrutura de módulos e aulas definida</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Roteiro de pelo menos 1 módulo escrito"><span>✅ Roteiro de pelo menos 1 módulo escrito</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Equipamento mínimo disponível (celular ou microfone)"><span>📱 Equipamento mínimo disponível (celular ou microfone)</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Ambiente bem iluminado e silencioso para gravação"><span>💡 Ambiente bem iluminado e silencioso para gravação</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Plataforma de hospedagem escolhida"><span>🖥️ Plataforma de hospedagem escolhida (Hotmart, Eduzz, Teachable...)</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Foto profissional para página de vendas"><span>📸 Foto profissional para página de vendas</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Preço de lançamento definido"><span>💰 Preço de lançamento definido</span></label>
+        <label class="chk-row" onclick="toggleChk(this,'chk_val','chk_list')"><input type="checkbox" value="Lista de pelo menos 10 pessoas para o pré-lançamento"><span>📣 Lista de pelo menos 10 pessoas para o pré-lançamento</span></label>
+      </div>
+      <input type="hidden" id="chk_val">
+    </div>
+    <div class="field"><label>Qual é a sua maior dificuldade na fase de produção?</label><textarea id="dificuldade" placeholder="Ex: Nunca gravei um vídeo profissional. Tenho vergonha de aparecer na câmera. Não domino as plataformas..."></textarea></div>
+    <div class="field"><label>Quando você planeja lançar a primeira versão?</label><div class="hint">Defina uma data real. A data cria urgência. Urgência cria produção.</div><input type="text" id="lancamento" placeholder="Ex: Primeira versão em 60 dias — agosto de 2025"></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(5)">← Voltar</button><button class="btn btn-done" onclick="generateReport()">✅ Gerar meu Plano de Curso</button></div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="report-panel" id="reportPanel">
+    <div class="report-header">
+      <span style="font-size:52px;display:block;margin-bottom:14px;">🎓</span>
+      <h2>Seu Plano de Minicurso está pronto!</h2>
+      <p>Use <strong>📋 Copiar</strong> para colar no Word ou Google Docs.<br>Use <strong>🖨️ Imprimir</strong> e escolha "Salvar como PDF" na impressora do seu navegador.</p>
+    </div>
+    <div class="report-box" id="reportBox"><div class="report-loading"><div class="spinner"></div><br>Gerando seu Plano de Curso com IA...</div></div>
+    <div class="report-actions">
+      <button class="btn-copy" onclick="copyReport()">📋 Copiar</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      <button class="btn-restart" onclick="restartTool()">↩ Recomeçar</button>
+    </div>
+  </div>
+</main>
+<div class="toast" id="toast">✅ Copiado!</div>
+
+<script>
+const TOTAL=6,phases=['Fundação','Objetivo','Arquitetura','Formato','Avaliação','Produção'];
+let cur=0,modCount=0,lessonCounts={};
+
+function startTool(){
+  document.getElementById('welcomeCard').style.display='none';
+  document.getElementById('prog').style.display='block';
+  buildDots();
+  // Add 3 starter modules
+  addMod();addMod();addMod();
+  goTo(1);
+}
+function buildDots(){
+  const row=document.getElementById('pdots');row.innerHTML='';
+  phases.forEach((_,i)=>{const d=document.createElement('div');d.className='pdot';d.id=`pd${i}`;row.appendChild(d);});
+}
+function goTo(n){
+  for(let i=1;i<=TOTAL;i++){const el=document.getElementById(`s${i}`);if(el)el.classList.remove('active');}
+  document.getElementById('reportPanel').classList.remove('active');
+  cur=n;const card=document.getElementById(`s${n}`);
+  if(card){card.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  updateProg();
+}
+function updateProg(){
+  const pct=Math.round(((cur-1)/TOTAL)*100);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('pctLbl').textContent=pct+'%';
+  document.getElementById('stepLbl').textContent=`Fase ${cur} de ${TOTAL}`;
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById(`pd${i}`);if(!el)return;el.className='pdot';if(i<cur-1)el.classList.add('done');else if(i===cur-1)el.classList.add('active');}
+}
+
+// MODULE BUILDER
+function addMod(){
+  modCount++;const id=`mod${modCount}`;lessonCounts[id]=0;
+  const el=document.createElement('div');el.className='mod-item';el.id=id;
+  el.innerHTML=`
+    <div class="mod-head" onclick="toggleMod('${id}')">
+      <div class="mod-num">${modCount}</div>
+      <div class="mod-preview" id="${id}_prev">Módulo ${modCount} — clique para editar</div>
+      <div class="mod-toggle" id="${id}_tog">▼</div>
+    </div>
+    <div class="mod-body" id="${id}_body">
+      <div class="field">
+        <label>Título do módulo</label>
+        <input type="text" id="${id}_titulo" placeholder="Ex: Os primeiros 30 dias — Observar antes de agir"
+          oninput="document.getElementById('${id}_prev').textContent=this.value||'Módulo ${modCount} — clique para editar';updateStats()">
+      </div>
+      <div class="field">
+        <label>Objetivo específico do módulo</label>
+        <input type="text" id="${id}_obj" placeholder="Ex: Mapear os stakeholders e criar seu plano de primeiras conversas">
+      </div>
+      <div class="field">
+        <label>Aulas deste módulo</label>
+        <div class="hint">Título da aula + duração estimada em minutos.</div>
+        <div class="lesson-list" id="${id}_lessons"></div>
+        <button class="add-lesson" onclick="addLesson('${id}')">＋ Adicionar aula</button>
+      </div>
+      <div class="field">
+        <label>Ação prática ao final do módulo</label>
+        <input type="text" id="${id}_acao" placeholder="Ex: Preencher o Mapa de Stakeholders com os 5 primeiros nomes">
+      </div>
+    </div>`;
+  document.getElementById('modList').appendChild(el);
+  toggleMod(id);addLesson(id);addLesson(id);
+  updateStats();
+}
+
+function addLesson(modId){
+  lessonCounts[modId]=(lessonCounts[modId]||0)+1;
+  const ln=lessonCounts[modId],lid=`${modId}_l${ln}`;
+  const list=document.getElementById(`${modId}_lessons`);
+  const el=document.createElement('div');el.className='lesson-row';el.id=lid;
+  el.innerHTML=`<div class="lesson-n">${ln}.</div>
+    <input class="lesson-inp" type="text" placeholder="Título da aula..." oninput="updateStats()">
+    <input class="lesson-dur" type="text" placeholder="5 min">
+    <span class="lesson-rm" onclick="document.getElementById('${lid}').remove();updateStats()">×</span>`;
+  list.appendChild(el);updateStats();
+}
+
+function toggleMod(id){
+  const body=document.getElementById(`${id}_body`),tog=document.getElementById(`${id}_tog`);
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);tog.classList.toggle('open',!open);
+}
+
+function updateStats(){
+  const mods=document.querySelectorAll('.mod-item');
+  let totalAulas=0,totalMin=0;
+  mods.forEach(m=>{
+    const lessons=m.querySelectorAll('.lesson-row');totalAulas+=lessons.length;
+    lessons.forEach(l=>{const dur=l.querySelector('.lesson-dur');totalMin+=parseInt(dur&&dur.value||5)||5;});
+  });
+  document.getElementById('st-mod').textContent=mods.length;
+  document.getElementById('st-aula').textContent=totalAulas;
+  document.getElementById('st-min').textContent=totalMin;
+}
+
+function selFmt(card,val){
+  document.querySelectorAll('.fmt-card').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');document.getElementById('fmt_val').value=val;
+}
+function selAssess(opt,val){
+  document.querySelectorAll('.assess-opt').forEach(o=>o.classList.remove('sel'));
+  opt.classList.add('sel');document.getElementById('aval_val').value=val;
+}
+function toggleChk(row,hiddenId,listId){
+  const cb=row.querySelector('input[type=checkbox]');
+  setTimeout(()=>{
+    row.classList.toggle('sel',cb.checked);
+    const vals=[...document.querySelectorAll(`#${listId} input:checked`)].map(i=>i.value);
+    document.getElementById(hiddenId).value=vals.join(' | ');
+  },10);
+}
+function updateObj(){
+  const a=document.getElementById('obj_a').value.trim();
+  const b=document.getElementById('obj_b').value.trim();
+  const c=document.getElementById('obj_c').value.trim();
+  const p=document.getElementById('objPrev');
+  if(!a&&!b&&!c){p.innerHTML='✍️ <em>Seu objetivo aparecerá aqui conforme você preenche os campos...</em>';return;}
+  p.innerHTML=`🎯 <strong>${a||'[Audiência]'} ${b||'[comportamento]'} ${c||'[condição e critério]'}.</strong>`;
+}
+
+function g(id){const el=document.getElementById(id);return el&&el.value.trim()?el.value.trim():'Não informado';}
+
+function getModulesText(){
+  const mods=document.querySelectorAll('.mod-item');
+  if(!mods.length)return'Nenhum módulo criado';
+  let txt='';
+  mods.forEach((m,mi)=>{
+    const id=m.id;
+    const titulo=document.getElementById(`${id}_titulo`)?.value||`Módulo ${mi+1}`;
+    const obj=document.getElementById(`${id}_obj`)?.value||'';
+    const acao=document.getElementById(`${id}_acao`)?.value||'';
+    const lessons=m.querySelectorAll('.lesson-row');
+    txt+=`\nMódulo ${mi+1}: ${titulo}`;
+    if(obj)txt+=`\n  Objetivo: ${obj}`;
+    lessons.forEach((l,li)=>{
+      const t=l.querySelector('.lesson-inp')?.value||`Aula ${li+1}`;
+      const d=l.querySelector('.lesson-dur')?.value||'5 min';
+      txt+=`\n  Aula ${li+1}: ${t} (${d})`;
+    });
+    if(acao)txt+=`\n  Ação prática: ${acao}`;
+    txt+='\n';
+  });
+  return txt.trim();
+}
+
+async function generateReport(){
+  for(let i=1;i<=TOTAL;i++){const el=document.getElementById(`s${i}`);if(el)el.classList.remove('active');}
+  document.getElementById('progFill').style.width='100%';document.getElementById('pctLbl').textContent='100%';
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById(`pd${i}`);if(el)el.className='pdot done';}
+  document.getElementById('reportPanel').classList.add('active');
+  document.getElementById('reportBox').innerHTML='<div class="report-loading"><div class="spinner"></div><br>Gerando seu Plano de Curso com IA...</div>';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  const d={titulo:g('titulo'),transf:g('transformacao'),aluno:g('aluno'),prereq:g('prereq'),dur:g('duracao'),obj:`${g('obj_a')} ${g('obj_b')} ${g('obj_c')}`,res:g('resultados'),perg:g('pergunta'),mods:getModulesText(),fmt:g('fmt_val'),tom:g('tom'),mat:g('mat_val'),aval:g('aval_val'),aval_desc:g('aval_desc'),eng:g('engajamento'),chk:g('chk_val'),dif:g('dificuldade'),lanc:g('lancamento'),nMods:document.getElementById('st-mod').textContent,nAulas:document.getElementById('st-aula').textContent,nMin:document.getElementById('st-min').textContent};
+
+  const prompt=`Você é especialista em design instrucional e microlearning. Crie um PLANO COMPLETO DE MINICURSO detalhado e estratégico com base nos dados abaixo. Interprete, enriqueça e dê orientações pedagógicas reais.
+
+DADOS DO CURSO:
+Título: ${d.titulo}
+Transformação prometida: ${d.transf}
+Aluno ideal: ${d.aluno}
+Pré-requisito: ${d.prereq}
+Duração planejada: ${d.dur}
+Objetivo de aprendizagem: ${d.obj}
+Resultados práticos: ${d.res}
+Pergunta central do curso: ${d.perg}
+Estatísticas: ${d.nMods} módulos | ${d.nAulas} aulas | ${d.nMin} minutos estimados
+
+ARQUITETURA DE MÓDULOS:
+${d.mods}
+
+FORMATO E PRODUÇÃO:
+Formato principal: ${d.fmt}
+Tom e linguagem: ${d.tom}
+Materiais de apoio: ${d.mat}
+Estratégia de avaliação: ${d.aval}
+Descrição da avaliação: ${d.aval_desc}
+Estratégias de engajamento: ${d.eng}
+Checklist concluído: ${d.chk}
+Maior dificuldade na produção: ${d.dif}
+Data de lançamento: ${d.lanc}
+
+FORMATO DO PLANO (texto puro, sem markdown):
+════════════════════════════════
+PLANO DE MINICURSO — MICROLEARNING
+${d.titulo}
+Data: ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}
+════════════════════════════════
+${d.nMods} módulos | ${d.nAulas} aulas | ${d.nMin} minutos estimados
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANÁLISE PEDAGÓGICA DO CURSO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Avalie a proposta do curso: coerência entre objetivo, público e transformação. Pontos fortes e recomendações de melhoria.]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OBJETIVO DE APRENDIZAGEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Refine e articule o objetivo de aprendizagem de forma clara e mensurável]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARQUITETURA DOS MÓDULOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Liste todos os módulos com seus títulos, objetivos, aulas e ações práticas. Adicione comentários pedagógicos sobre a progressão]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESTRATÉGIA DE FORMATO E ENGAJAMENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Avalie o formato escolhido e dê recomendações práticas de produção considerando o perfil do professor]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AVALIAÇÃO E CONCLUSÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Analise a estratégia de avaliação e sugira melhorias se necessário]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PLANO DE PRODUÇÃO — PRÓXIMOS 30 DIAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Crie um plano de ação semanal realista para os primeiros 30 dias de produção, considerando as dificuldades relatadas]
+
+════════════════════════════════
+Baseado no Modelo SECI — Nonaka & Takeuchi
+Kit de Transformação do Conhecimento
+════════════════════════════════`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content&&data.content[0]?data.content[0].text:null;
+    if(text){document.getElementById('reportBox').textContent=text;}else{showFallback(d);}
+  }catch(e){showFallback(d);}
+}
+
+function showFallback(d){
+  document.getElementById('reportBox').textContent=`════════════════════════════════
+PLANO DE MINICURSO — MICROLEARNING
+${d.titulo}
+${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}
+════════════════════════════════
+${d.nMods} módulos | ${d.nAulas} aulas | ${d.nMin} minutos estimados
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. FUNDAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Título: ${d.titulo}
+Transformação: ${d.transf}
+Aluno ideal: ${d.aluno}
+Pré-requisito: ${d.prereq}
+Duração: ${d.dur}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. OBJETIVO DE APRENDIZAGEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${d.obj}
+
+Resultados práticos:
+${d.res}
+
+Pergunta central: ${d.perg}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. ARQUITETURA DE MÓDULOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${d.mods}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. FORMATO E MATERIAIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Formato principal: ${d.fmt}
+Tom e linguagem: ${d.tom}
+Materiais de apoio: ${d.mat}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. AVALIAÇÃO E ENGAJAMENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Estratégia: ${d.aval}
+Descrição: ${d.aval_desc}
+Engajamento: ${d.eng}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. PRODUÇÃO E LANÇAMENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Checklist concluído: ${d.chk}
+Maior dificuldade: ${d.dif}
+Data de lançamento: ${d.lanc}
+
+════════════════════════════════
+Baseado no Modelo SECI — Nonaka & Takeuchi
+Kit de Transformação do Conhecimento
+════════════════════════════════`;}
+
+function copyReport(){
+  const text=document.getElementById('reportBox').textContent;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(()=>showToast('✅ Copiado!')).catch(()=>selectAll());}else{selectAll();}
+}
+function selectAll(){
+  const box=document.getElementById('reportBox');const range=document.createRange();range.selectNodeContents(box);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  showToast('✅ Texto selecionado — pressione Ctrl+C para copiar');
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function restartTool(){document.getElementById('reportPanel').classList.remove('active');document.getElementById('prog').style.display='none';document.getElementById('welcomeCard').style.display='block';window.scrollTo({top:0,behavior:'smooth'});}
+</script>
+</body>
+</html>

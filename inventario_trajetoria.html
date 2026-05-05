@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventário de Trajetória Profissional</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf7f2;--card:#fff;--gold:#b5893a;--gold-l:#e8d5a8;--gold-p:#fdf6e3;--text:#2c2416;--muted:#7a6a52;--border:#e0d4b8;--green:#4a6741;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:16px;line-height:1.7;}
+.header{background:linear-gradient(135deg,#2c1f0e,#4a3520);color:#fff;padding:40px 24px 32px;text-align:center;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(181,137,58,.18),transparent 60%),radial-gradient(ellipse at 70% 50%,rgba(181,137,58,.12),transparent 60%);}
+.header-inner{position:relative;max-width:680px;margin:0 auto;}
+.badge{display:inline-block;background:rgba(181,137,58,.25);border:1px solid rgba(181,137,58,.5);color:var(--gold-l);font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:5px 16px;border-radius:20px;margin-bottom:16px;font-weight:700;}
+.header h1{font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,38px);font-weight:700;color:#fff;margin-bottom:10px;line-height:1.2;}
+.header h1 span{color:var(--gold-l);}
+.header p{color:rgba(255,255,255,.7);font-size:14px;max-width:500px;margin:0 auto;font-weight:300;}
+.prog-wrap{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none;}
+.prog-inner{max-width:680px;margin:0 auto;}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.prog-track{background:#ede8df;border-radius:8px;height:7px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),#d4a84b);border-radius:8px;transition:width .5s ease;width:0;}
+.steps-nav{display:flex;gap:6px;margin-top:10px;}
+.sdot{flex:1;min-width:26px;height:26px;border-radius:50%;background:#ede8df;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);transition:all .2s;}
+.sdot.active{background:var(--gold);border-color:var(--gold);color:#fff;}
+.sdot.done{background:var(--green);border-color:var(--green);color:#fff;}
+.main{max-width:680px;margin:0 auto;padding:28px 16px 80px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px 26px;margin-bottom:20px;display:none;animation:rise .4s ease;box-shadow:0 2px 16px rgba(0,0,0,.05);}
+.card.active{display:block;}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.c-num{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:4px;}
+.c-title{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;margin-bottom:6px;}
+.c-sub{font-size:13px;color:var(--muted);margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);font-style:italic;}
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px;}
+.field .hint{font-size:12px;color:var(--muted);margin-bottom:7px;font-style:italic;}
+.field input,.field textarea,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Lato',sans-serif;font-size:14px;color:var(--text);background:#fdfbf7;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}
+.field input:focus,.field textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(181,137,58,.12);background:#fff;}
+.field textarea{resize:vertical;min-height:88px;}
+.tag-wrap{border:1.5px solid var(--border);border-radius:10px;background:#fdfbf7;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px;cursor:text;transition:border-color .2s;}
+.tag-wrap:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(181,137,58,.12);}
+.tag{background:var(--gold-p);border:1px solid var(--gold-l);color:var(--text);padding:4px 10px 4px 12px;border-radius:20px;font-size:13px;display:flex;align-items:center;gap:6px;}
+.tag-x{cursor:pointer;color:var(--gold);font-size:15px;line-height:1;}
+.tag-inp{border:none;outline:none;background:transparent;font-family:'Lato',sans-serif;font-size:14px;color:var(--text);min-width:120px;flex:1;padding:4px;}
+.radio-grp,.check-grp{display:flex;flex-direction:column;gap:8px;}
+.r-item,.c-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;}
+.r-item:hover,.c-item:hover,.r-item.sel,.c-item.sel{border-color:var(--gold);background:var(--gold-p);}
+.r-item input,.c-item input{width:17px;height:17px;accent-color:var(--gold);}
+.range-row{display:flex;align-items:center;gap:14px;}
+.range-row input[type=range]{flex:1;-webkit-appearance:none;height:5px;background:#ede8df;border-radius:6px;outline:none;}
+.range-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--gold);cursor:pointer;}
+.range-val{min-width:42px;text-align:center;background:var(--gold);color:#fff;padding:4px 8px;border-radius:8px;font-weight:700;font-size:13px;}
+.callout{background:var(--gold-p);border:1px solid var(--gold-l);border-radius:10px;padding:13px 16px;margin-bottom:20px;font-size:13px;color:var(--muted);}
+.callout strong{color:var(--gold);}
+.btn-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+.btn{padding:13px 26px;border-radius:10px;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-back{background:#fff;border:1.5px solid var(--border);color:var(--muted);}
+.btn-back:hover{border-color:var(--muted);}
+.btn-fwd{flex:1;justify-content:center;background:linear-gradient(135deg,var(--gold),#c9a04a);color:#fff;box-shadow:0 4px 16px rgba(181,137,58,.3);}
+.btn-fwd:hover{transform:translateY(-1px);}
+.btn-done{flex:1;justify-content:center;background:linear-gradient(135deg,var(--green),#3a5631);color:#fff;box-shadow:0 4px 16px rgba(74,103,65,.3);}
+.btn-done:hover{transform:translateY(-1px);}
+.welcome{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:44px 32px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.05);}
+.big-icon{font-size:58px;display:block;margin-bottom:18px;}
+.welcome h2{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:12px;}
+.welcome p{color:var(--muted);font-size:14px;margin-bottom:14px;max-width:460px;margin-left:auto;margin-right:auto;}
+.pill-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:18px 0;}
+.pill{background:var(--gold-p);border:1px solid var(--gold-l);border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;}
+
+/* REPORT */
+.report-panel{display:none;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px 26px;box-shadow:0 2px 16px rgba(0,0,0,.05);}
+.report-panel.active{display:block;}
+.report-header{text-align:center;margin-bottom:22px;}
+.report-header h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:8px;}
+.report-header p{color:var(--muted);font-size:13px;line-height:1.6;}
+.report-box{background:#fdfbf7;border:1.5px solid var(--border);border-radius:12px;padding:20px;font-size:13px;line-height:1.9;white-space:pre-wrap;font-family:'Lato',sans-serif;color:var(--text);max-height:520px;overflow-y:auto;}
+.report-loading{text-align:center;padding:40px;color:var(--muted);}
+.spinner{display:inline-block;width:36px;height:36px;border:3px solid var(--gold-l);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.report-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;}
+.btn-copy{flex:1;padding:13px;border-radius:10px;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--gold),#c9a04a);color:#fff;border:none;transition:all .2s;}
+.btn-copy:hover{transform:translateY(-1px);}
+.btn-print{flex:1;padding:13px;border-radius:10px;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:var(--green);color:#fff;border:none;transition:all .2s;}
+.btn-print:hover{transform:translateY(-1px);}
+.btn-restart{padding:13px 20px;border-radius:10px;font-family:'Lato',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:var(--muted);border:1.5px solid var(--border);}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;}
+.toast.show{opacity:1;}
+@media print{.header,.prog-wrap,.btn-row,.report-actions,.welcome{display:none!important;}.report-panel{display:block!important;box-shadow:none;border:none;padding:0;}.report-box{max-height:none;border:none;background:#fff;}body{background:#fff;}}
+@media(max-width:480px){.main{padding:18px 10px 60px;}.card,.welcome,.report-panel{padding:20px 14px;}.btn-row,.report-actions{flex-direction:column;}.btn-back,.btn-fwd,.btn-done,.btn-copy,.btn-print{width:100%;justify-content:center;}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-inner">
+    <div class="badge">Kit de Transformação do Conhecimento</div>
+    <h1>Inventário da Sua <span>Trajetória Profissional</span></h1>
+    <p>Uma jornada reflexiva para revelar o valor único da sua experiência acumulada.</p>
+  </div>
+</div>
+<div class="prog-wrap" id="progWrap">
+  <div class="prog-inner">
+    <div class="prog-meta"><span id="stepLbl">Etapa 1 de 7</span><span id="pctLbl">0%</span></div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="steps-nav" id="stepsNav"></div>
+  </div>
+</div>
+<div class="main">
+  <!-- WELCOME -->
+  <div class="welcome" id="welcomeCard">
+    <span class="big-icon">🗺️</span>
+    <h2>Bem-vindo à sua jornada de autoconhecimento</h2>
+    <p>Este inventário foi desenvolvido para ajudá-lo a organizar e valorizar décadas de experiência acumulada. Não há respostas certas ou erradas — apenas a sua história.</p>
+    <div class="pill-row"><div class="pill">⏱ 20–30 minutos</div><div class="pill">📋 7 etapas</div><div class="pill">📄 Relatório gerado ao final</div></div>
+    <p style="font-size:13px;">Ao final, seu relatório será gerado automaticamente. Você poderá <strong>copiar o texto</strong> ou <strong>imprimir / salvar como PDF</strong> pelo navegador.</p>
+    <button class="btn btn-fwd" onclick="startTool()" style="margin-top:20px;padding:15px 40px;">✨ Iniciar meu inventário</button>
+  </div>
+  <!-- S1 -->
+  <div class="card" id="s1">
+    <div class="c-num">Etapa 1 de 7 — Identificação</div>
+    <div class="c-title">Identificação e Contexto</div>
+    <div class="c-sub">Vamos começar com o básico. Essas informações contextualizarão toda a sua trajetória.</div>
+    <div class="field"><label>Nome completo</label><input type="text" id="nome" placeholder="Como você se chama?"></div>
+    <div class="field"><label>Área de atuação principal</label><input type="text" id="area" placeholder="Ex: Engenharia, Gestão, Educação, Saúde..."></div>
+    <div class="field"><label>Anos de experiência profissional</label>
+      <div class="range-row"><input type="range" id="anos" min="5" max="50" value="20" oninput="document.getElementById('anos_v').textContent=this.value"><span class="range-val" id="anos_v">20</span></div>
+    </div>
+    <div class="field"><label>Qual é a sua situação atual?</label>
+      <div class="radio-grp">
+        <label class="r-item"><input type="radio" name="sit" value="Em transição de carreira"> Em transição de carreira</label>
+        <label class="r-item"><input type="radio" name="sit" value="Em processo de recolocação"> Em processo de recolocação</label>
+        <label class="r-item"><input type="radio" name="sit" value="Ativo e buscando novas oportunidades"> Ativo e buscando novas oportunidades</label>
+        <label class="r-item"><input type="radio" name="sit" value="Trabalhando de forma autônoma/consultoria"> Trabalhando de forma autônoma / consultoria</label>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn btn-fwd" onclick="goTo(2)">Avançar →</button></div>
+  </div>
+  <!-- S2 -->
+  <div class="card" id="s2">
+    <div class="c-num">Etapa 2 de 7 — Trajetória</div>
+    <div class="c-title">Minha Trajetória Profissional</div>
+    <div class="c-sub">Cada experiência deixou uma marca. Vamos mapeá-las para enxergar o fio condutor da sua carreira.</div>
+    <div class="field"><label>Quais foram as 3 experiências profissionais mais marcantes da sua carreira?</label><div class="hint">Cargos, projetos, empresas ou momentos que definiram quem você é profissionalmente.</div><textarea id="exp_marcantes" placeholder="Ex: Fui gerente de operações na empresa X e lá aprendi a coordenar equipes em situações de crise..."></textarea></div>
+    <div class="field"><label>Quais organizações ou setores moldaram mais profundamente a sua visão de mundo?</label><textarea id="organizacoes" placeholder="Ex: Trabalhei 12 anos no setor público e isso me ensinou sobre..."></textarea></div>
+    <div class="field"><label>Se pudesse contar a história da sua carreira em 3 fases, quais seriam?</label><textarea id="fases" placeholder="Fase 1: Aprendizado&#10;Fase 2: Liderança&#10;Fase 3: Propósito"></textarea></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(1)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(3)">Avançar →</button></div>
+  </div>
+  <!-- S3 -->
+  <div class="card" id="s3">
+    <div class="c-num">Etapa 3 de 7 — Competências</div>
+    <div class="c-title">O Que Eu Sei Fazer</div>
+    <div class="c-sub">Aqui está o coração do seu valor. Vamos tornar visível o conhecimento que você acumulou ao longo dos anos.</div>
+    <div class="field"><label>Quais são suas principais competências?</label><div class="hint">Digite cada competência e pressione Enter para adicionar.</div>
+      <div class="tag-wrap" id="comp_wrap" onclick="document.getElementById('comp_inp').focus()">
+        <input class="tag-inp" id="comp_inp" placeholder="Ex: Gestão de pessoas..." onkeydown="addTag(event,'comp_wrap','comp_val')">
+      </div><input type="hidden" id="comp_val">
+    </div>
+    <div class="field"><label>Qual problema você resolve melhor do que qualquer outra pessoa que conhece?</label><textarea id="superpoder" placeholder="Ex: Consigo transformar times desmotivados em equipes de alta performance..."></textarea></div>
+    <div class="field"><label>Quais conhecimentos você tem que raramente vê em outras pessoas da sua área?</label><textarea id="conhec_raro" placeholder="Ex: Conheço tanto a parte técnica de engenharia quanto a gestão de contratos públicos..."></textarea></div>
+    <div class="field"><label>Em que situações você se sente mais confiante e "no seu elemento"?</label><textarea id="zona" placeholder="Ex: Em negociações de alto nível, quando preciso encontrar soluções criativas..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(2)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(4)">Avançar →</button></div>
+  </div>
+  <!-- S4 -->
+  <div class="card" id="s4">
+    <div class="c-num">Etapa 4 de 7 — Conquistas</div>
+    <div class="c-title">Minhas Conquistas e Resultados</div>
+    <div class="c-sub">Resultados concretos são a prova do seu valor.</div>
+    <div class="field"><label>Qual foi o projeto ou resultado de maior impacto da sua carreira?</label><textarea id="maior_impacto" placeholder="Ex: Liderei a implementação de um novo sistema que reduziu custos em 30%..."></textarea></div>
+    <div class="field"><label>Cite 3 conquistas profissionais das quais você mais se orgulha</label><textarea id="conquistas" placeholder="1.&#10;2.&#10;3." style="min-height:100px"></textarea></div>
+    <div class="field"><label>Que reconhecimentos, prêmios ou menções importantes você recebeu?</label><textarea id="reconhecimentos" placeholder="Ex: Eleito melhor gerente do ano, palestrante em conferência nacional..."></textarea></div>
+    <div class="field"><label>Qual foi o maior desafio que você superou e o que isso te ensinou?</label><textarea id="desafio" placeholder="Ex: Reestruturei um departamento em crise e aprendi que..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(3)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(5)">Avançar →</button></div>
+  </div>
+  <!-- S5 -->
+  <div class="card" id="s5">
+    <div class="c-num">Etapa 5 de 7 — Conhecimento Tácito</div>
+    <div class="c-title">Meu Conhecimento Tácito</div>
+    <div class="c-sub">Conhecimento tácito é aquele que você "carrega no corpo" — difícil de explicar, fácil de perceber quando está presente.</div>
+    <div class="callout"><strong>💡 O que é conhecimento tácito?</strong> É tudo que você sabe mas raramente consegue escrever em um manual: intuições, atalhos mentais, percepções desenvolvidas ao longo dos anos. É aqui que mora o ouro da sua experiência.</div>
+    <div class="field"><label>Quais "segredos do ofício" você aprendeu que não estão em nenhum livro?</label><textarea id="segredos" placeholder="Ex: Aprendi que em qualquer negociação, o silêncio estratégico vale mais do que qualquer argumento..."></textarea></div>
+    <div class="field"><label>Quando um colega mais jovem te pede conselho, sobre o que você normalmente fala?</label><textarea id="conselho" placeholder="Ex: Sempre digo que construir relacionamentos genuínos antes de precisar deles é o investimento mais rentável..."></textarea></div>
+    <div class="field"><label>Que erros comuns você vê profissionais mais jovens cometendo — e que você não comete mais?</label><textarea id="erros" placeholder="Ex: Vejo muitos tentando agradar a todos e perdendo o foco..."></textarea></div>
+    <div class="field"><label>Se você fosse criar um curso de 1 hora sobre o que aprendeu, qual seria o tema?</label><input type="text" id="tema_curso" placeholder="Ex: Como navegar em organizações complexas sem perder a autenticidade"></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(4)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(6)">Avançar →</button></div>
+  </div>
+  <!-- S6 -->
+  <div class="card" id="s6">
+    <div class="c-num">Etapa 6 de 7 — Propósito</div>
+    <div class="c-title">Para Quem e Por Quê</div>
+    <div class="c-sub">Conhecimento só tem valor quando transforma alguém.</div>
+    <div class="field"><label>Para quem você mais quer transmitir o que sabe?</label>
+      <div class="radio-grp">
+        <label class="r-item"><input type="radio" name="pub" value="Profissionais em início de carreira"> Profissionais em início de carreira</label>
+        <label class="r-item"><input type="radio" name="pub" value="Profissionais da mesma área/nível"> Profissionais da mesma área/nível</label>
+        <label class="r-item"><input type="radio" name="pub" value="Líderes e gestores"> Líderes e gestores</label>
+        <label class="r-item"><input type="radio" name="pub" value="Empreendedores e autônomos"> Empreendedores e autônomos</label>
+      </div>
+    </div>
+    <div class="field"><label>Qual problema específico desse público você se sente mais preparado para resolver?</label><textarea id="prob_pub" placeholder="Ex: Ajudar gestores de média empresa a estruturar processos sem perder a agilidade..."></textarea></div>
+    <div class="field"><label>Por que é importante para você compartilhar o que aprendeu?</label><textarea id="proposito" placeholder="Ex: Quero que os 30 anos que levei aprendendo certas lições não sejam necessários para a próxima geração..."></textarea></div>
+    <div class="field"><label>Como você gostaria de ser reconhecido daqui a 3 anos?</label><input type="text" id="legado" placeholder="Ex: Referência em gestão humana em pequenas empresas"></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(5)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(7)">Avançar →</button></div>
+  </div>
+  <!-- S7 -->
+  <div class="card" id="s7">
+    <div class="c-num">Etapa 7 de 7 — Futuro</div>
+    <div class="c-title">Minha Visão de Futuro</div>
+    <div class="c-sub">Onde você quer chegar e quais recursos você já tem para começar.</div>
+    <div class="field"><label>Quais formatos de compartilhamento de conhecimento mais te atraem?</label>
+      <div class="check-grp">
+        <label class="c-item"><input type="checkbox" value="Minicurso online"> Minicurso online (microlearning)</label>
+        <label class="c-item"><input type="checkbox" value="E-book ou guia prático"> E-book ou guia prático</label>
+        <label class="c-item"><input type="checkbox" value="Mentoria individual"> Mentoria individual</label>
+        <label class="c-item"><input type="checkbox" value="Palestras e workshops"> Palestras e workshops</label>
+        <label class="c-item"><input type="checkbox" value="Podcast ou canal de vídeos"> Podcast ou canal de vídeos</label>
+        <label class="c-item"><input type="checkbox" value="Consultoria especializada"> Consultoria especializada</label>
+      </div>
+    </div>
+    <div class="field"><label>Que recursos você já possui para começar?</label><textarea id="recursos" placeholder="Ex: Tenho uma rede de 800 contatos no LinkedIn, material de treinamentos que dei..."></textarea></div>
+    <div class="field"><label>Qual é o maior obstáculo para transformar seu conhecimento em produto?</label>
+      <div class="radio-grp">
+        <label class="r-item"><input type="radio" name="obs" value="Não me sinto à vontade com tecnologia"> Não me sinto à vontade com tecnologia</label>
+        <label class="r-item"><input type="radio" name="obs" value="Não sei como estruturar um curso/conteúdo"> Não sei como estruturar um curso/conteúdo</label>
+        <label class="r-item"><input type="radio" name="obs" value="Não tenho certeza se meu conhecimento tem valor"> Não tenho certeza se meu conhecimento tem valor</label>
+        <label class="r-item"><input type="radio" name="obs" value="Falta de tempo"> Falta de tempo</label>
+      </div>
+    </div>
+    <div class="field"><label>Há algo mais que você gostaria de registrar?</label><textarea id="obs_finais" placeholder="Espaço livre para qualquer reflexão adicional..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(6)">← Voltar</button><button class="btn btn-done" onclick="generateReport()">✅ Gerar meu relatório</button></div>
+  </div>
+  <!-- REPORT -->
+  <div class="report-panel" id="reportPanel">
+    <div class="report-header">
+      <span style="font-size:52px;display:block;margin-bottom:14px;">📋</span>
+      <h2>Seu Relatório está pronto!</h2>
+      <p>Use <strong>📋 Copiar</strong> para colar no Word ou Google Docs.<br>Use <strong>🖨️ Imprimir</strong> e escolha "Salvar como PDF" na impressora do seu navegador.</p>
+    </div>
+    <div class="report-box" id="reportBox"><div class="report-loading"><div class="spinner"></div><br>Gerando seu relatório personalizado...</div></div>
+    <div class="report-actions">
+      <button class="btn-copy" onclick="copyReport()">📋 Copiar relatório</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      <button class="btn-restart" onclick="restartTool()">↩ Recomeçar</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast">✅ Copiado!</div>
+
+<script>
+const TOTAL=7;let cur=0;
+function startTool(){document.getElementById('welcomeCard').style.display='none';document.getElementById('progWrap').style.display='block';buildDots();goTo(1);}
+function buildDots(){const nav=document.getElementById('stepsNav');nav.innerHTML='';for(let i=1;i<=TOTAL;i++){const d=document.createElement('div');d.className='sdot';d.id=`d${i}`;d.textContent=i;nav.appendChild(d);}}
+function goTo(n){for(let i=1;i<=TOTAL;i++){const el=document.getElementById(`s${i}`);if(el)el.classList.remove('active');}document.getElementById('reportPanel').classList.remove('active');cur=n;const card=document.getElementById(`s${n}`);if(card){card.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}updateProg();}
+function updateProg(){const pct=Math.round(((cur-1)/TOTAL)*100);document.getElementById('progFill').style.width=pct+'%';document.getElementById('pctLbl').textContent=pct+'%';document.getElementById('stepLbl').textContent=`Etapa ${cur} de ${TOTAL}`;for(let i=1;i<=TOTAL;i++){const d=document.getElementById(`d${i}`);if(!d)continue;d.className='sdot';if(i<cur)d.classList.add('done');else if(i===cur)d.classList.add('active');}}
+function addTag(e,wrapId,hiddenId){if(e.key!=='Enter'&&e.key!==',')return;e.preventDefault();const inp=e.target,val=inp.value.replace(',','').trim();if(!val)return;const wrap=document.getElementById(wrapId);const tag=document.createElement('div');tag.className='tag';tag.innerHTML=`<span>${val}</span><span class="tag-x" onclick="this.parentElement.remove();syncTags('${wrapId}','${hiddenId}')">×</span>`;wrap.insertBefore(tag,inp);inp.value='';syncTags(wrapId,hiddenId);}
+function syncTags(wrapId,hiddenId){const vals=[...document.getElementById(wrapId).querySelectorAll('.tag span:first-child')].map(t=>t.textContent);document.getElementById(hiddenId).value=vals.join(', ');}
+document.addEventListener('change',function(e){if(e.target.type==='radio'){const grp=e.target.closest('.radio-grp');if(grp){grp.querySelectorAll('.r-item').forEach(i=>i.classList.remove('sel'));e.target.closest('.r-item').classList.add('sel');}}if(e.target.type==='checkbox'){e.target.closest('.c-item').classList.toggle('sel',e.target.checked);}});
+function g(id){const el=document.getElementById(id);return el&&el.value.trim()?el.value.trim():'Não informado';}
+function gr(name){const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'Não informado';}
+function gc(sel){const els=[...document.querySelectorAll(`${sel} input:checked`)];return els.length?els.map(e=>{const l=e.closest('.c-item');return l?l.textContent.trim():e.value;}).join(', '):'Não informado';}
+
+async function generateReport(){
+  for(let i=1;i<=TOTAL;i++){const el=document.getElementById(`s${i}`);if(el)el.classList.remove('active');}
+  document.getElementById('progFill').style.width='100%';document.getElementById('pctLbl').textContent='100%';
+  for(let i=1;i<=TOTAL;i++){const d=document.getElementById(`d${i}`);if(d)d.className='sdot done';}
+  document.getElementById('reportPanel').classList.add('active');
+  document.getElementById('reportBox').innerHTML='<div class="report-loading"><div class="spinner"></div><br>Gerando seu relatório personalizado com IA...</div>';
+  window.scrollTo({top:0,behavior:'smooth'});
+  const d={nome:g('nome'),area:g('area'),anos:document.getElementById('anos').value,sit:gr('sit'),exp:g('exp_marcantes'),org:g('organizacoes'),fases:g('fases'),comp:g('comp_val'),super:g('superpoder'),raro:g('conhec_raro'),zona:g('zona'),impacto:g('maior_impacto'),conq:g('conquistas'),rec:g('reconhecimentos'),des:g('desafio'),seg:g('segredos'),cons:g('conselho'),erros:g('erros'),tema:g('tema_curso'),pub:gr('pub'),prob:g('prob_pub'),prop:g('proposito'),leg:g('legado'),form:gc('#s7 .check-grp'),rec2:g('recursos'),obs:gr('obs'),final:g('obs_finais')};
+  const prompt=`Você é especialista em desenvolvimento de carreira. Crie um RELATÓRIO PERSONALIZADO E RICO para o inventário de trajetória profissional abaixo. Interprete as respostas com profundidade, identifique padrões e valorize o conhecimento do profissional.
+
+DADOS:
+Nome: ${d.nome} | Área: ${d.area} | Experiência: ${d.anos} anos | Situação: ${d.sit}
+Experiências marcantes: ${d.exp}
+Organizações formadoras: ${d.org}
+Fases da carreira: ${d.fases}
+Competências: ${d.comp}
+Superpoder profissional: ${d.super}
+Conhecimentos raros: ${d.raro}
+Zona de excelência: ${d.zona}
+Maior impacto: ${d.impacto}
+Conquistas: ${d.conq}
+Reconhecimentos: ${d.rec}
+Maior desafio superado: ${d.des}
+Segredos do ofício: ${d.seg}
+Conselhos que dá: ${d.cons}
+Erros que não comete mais: ${d.erros}
+Tema do minicurso ideal: ${d.tema}
+Público-alvo: ${d.pub}
+Problema que resolve: ${d.prob}
+Por que quer compartilhar: ${d.prop}
+Como quer ser reconhecido: ${d.leg}
+Formatos preferidos: ${d.form}
+Recursos disponíveis: ${d.rec2}
+Obstáculo principal: ${d.obs}
+Observações finais: ${d.final}
+
+FORMATO DO RELATÓRIO (use exatamente esta estrutura em texto puro, sem markdown):
+════════════════════════════════
+INVENTÁRIO DE TRAJETÓRIA PROFISSIONAL
+${d.nome} | ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}
+════════════════════════════════
+
+SÍNTESE DO PERFIL
+[4-5 frases poderosas que capturam a essência deste profissional, seus diferencias e seu potencial]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. TRAJETÓRIA E EXPERIÊNCIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Interprete a trajetória, identifique o fio condutor, valorize as experiências]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. COMPETÊNCIAS E DIFERENCIAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Interprete as competências, destaque o que é único, conecte com o mercado]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. CONQUISTAS E IMPACTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Valorize os resultados, quantifique onde possível, mostre o legado]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. CONHECIMENTO TÁCITO — SEU OURO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Articule o conhecimento tácito de forma explícita, mostre seu valor didático]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. PROPÓSITO E POSICIONAMENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Conecte o propósito com o público, valide o posicionamento]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRÓXIMOS PASSOS RECOMENDADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. [Ação concreta e específica]
+2. [Ação concreta e específica]
+3. [Ação concreta e específica]
+
+════════════════════════════════
+Baseado no Modelo SECI — Nonaka & Takeuchi
+Kit de Transformação do Conhecimento
+════════════════════════════════`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content&&data.content[0]?data.content[0].text:null;
+    if(text){document.getElementById('reportBox').textContent=text;}else{showFallback(d);}
+  }catch(e){showFallback(d);}
+}
+
+function showFallback(d){
+  document.getElementById('reportBox').textContent=`════════════════════════════════
+INVENTÁRIO DE TRAJETÓRIA PROFISSIONAL
+${d.nome} | ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}
+════════════════════════════════
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. IDENTIFICAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Nome: ${d.nome}
+Área: ${d.area}
+Experiência: ${d.anos} anos
+Situação: ${d.sit}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. TRAJETÓRIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Experiências marcantes:
+${d.exp}
+
+Organizações formadoras:
+${d.org}
+
+Fases da carreira:
+${d.fases}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. COMPETÊNCIAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Competências: ${d.comp}
+Superpoder: ${d.super}
+Conhecimentos raros: ${d.raro}
+Zona de excelência: ${d.zona}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. CONQUISTAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Maior impacto: ${d.impacto}
+Conquistas: ${d.conq}
+Reconhecimentos: ${d.rec}
+Maior desafio: ${d.des}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. CONHECIMENTO TÁCITO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Segredos do ofício: ${d.seg}
+Conselhos: ${d.cons}
+Erros evitados: ${d.erros}
+Tema do minicurso: ${d.tema}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. PROPÓSITO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Público: ${d.pub}
+Problema que resolve: ${d.prob}
+Por que compartilhar: ${d.prop}
+Legado desejado: ${d.leg}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. FUTURO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Formatos preferidos: ${d.form}
+Recursos disponíveis: ${d.rec2}
+Obstáculo principal: ${d.obs}
+Observações: ${d.final}
+
+════════════════════════════════
+Baseado no Modelo SECI — Nonaka & Takeuchi
+Kit de Transformação do Conhecimento
+════════════════════════════════`;}
+
+function copyReport(){
+  const text=document.getElementById('reportBox').textContent;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>showToast('✅ Relatório copiado!')).catch(()=>selectAll());
+  }else{selectAll();}
+}
+function selectAll(){
+  const box=document.getElementById('reportBox');
+  const range=document.createRange();range.selectNodeContents(box);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  showToast('✅ Texto selecionado — pressione Ctrl+C para copiar');
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function restartTool(){document.getElementById('reportPanel').classList.remove('active');document.getElementById('progWrap').style.display='none';document.getElementById('welcomeCard').style.display='block';window.scrollTo({top:0,behavior:'smooth'});}
+</script>
+</body>
+</html>

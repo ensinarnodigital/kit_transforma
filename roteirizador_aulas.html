@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roteirizador de Aulas — Microlearning</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Serif+4:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #f7f5f0;
+  --ink:     #1c1917;
+  --ink2:    #3c3835;
+  --muted:   #8c8680;
+  --border:  #ddd9d3;
+  --border2: #c8c4bc;
+  --cream:   #faf8f4;
+  --card:    #ffffff;
+  --rust:    #c1440e;
+  --rust-l:  rgba(193,68,14,.1);
+  --rust-b:  rgba(193,68,14,.25);
+  --sage:    #4a7c59;
+  --sage-l:  rgba(74,124,89,.1);
+  --sage-b:  rgba(74,124,89,.28);
+  --amber:   #b5620a;
+  --amber-l: rgba(181,98,10,.1);
+  --amber-b: rgba(181,98,10,.28);
+  --indigo:  #3d4fa0;
+  --indigo-l:rgba(61,79,160,.1);
+  --indigo-b:rgba(61,79,160,.28);
+  --shadow:  0 2px 20px rgba(28,25,23,.07);
+  --shadow2: 0 8px 40px rgba(28,25,23,.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Source Serif 4', Georgia, serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--ink);
+  padding: 52px 24px 44px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,.015) 40px,
+      rgba(255,255,255,.015) 41px
+    );
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--rust), var(--amber), var(--sage));
+}
+.hdr { position: relative; max-width: 720px; margin: 0 auto; }
+.hdr-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,.45); margin-bottom: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 5px 14px; border-radius: 4px;
+}
+.header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(30px, 6vw, 52px);
+  font-weight: 800; line-height: 1.05;
+  color: #fff; margin-bottom: 14px;
+  letter-spacing: -1px;
+}
+.header h1 em {
+  font-style: normal;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--rust);
+}
+.header p {
+  color: rgba(255,255,255,.55);
+  font-size: 15px; font-weight: 300;
+  font-style: italic;
+  max-width: 480px; margin: 0 auto;
+}
+
+/* ── PROGRESS ── */
+.prog {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  position: sticky; top: 0; z-index: 100;
+  display: none;
+  box-shadow: var(--shadow);
+}
+.prog-inner { max-width: 720px; margin: 0 auto; }
+.prog-top {
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.prog-track { background: var(--border); height: 3px; border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--rust); transition: width .5s ease; width: 0; border-radius: 2px; }
+.phase-strip { display: flex; gap: 4px; margin-top: 8px; }
+.ps-dot {
+  flex: 1; height: 3px; border-radius: 2px;
+  background: var(--border); transition: background .3s;
+}
+.ps-dot.done { background: var(--sage); }
+.ps-dot.active { background: var(--rust); }
+
+/* ── MAIN ── */
+.main { max-width: 720px; margin: 0 auto; padding: 36px 16px 100px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 36px 32px;
+  margin-bottom: 20px;
+  display: none;
+  box-shadow: var(--shadow);
+  animation: lift .35s ease;
+}
+.card.active { display: block; }
+@keyframes lift {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.c-step {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--rust); margin-bottom: 8px;
+}
+.c-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--ink); margin-bottom: 8px; line-height: 1.2;
+}
+.c-sub {
+  font-size: 14px; color: var(--muted);
+  margin-bottom: 24px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  font-style: italic;
+}
+
+/* ── CALLOUT ── */
+.callout {
+  border-radius: 8px; padding: 14px 16px;
+  margin-bottom: 20px; font-size: 13px; line-height: 1.65;
+}
+.callout.rust { background: var(--rust-l); border-left: 3px solid var(--rust); }
+.callout.sage { background: var(--sage-l); border-left: 3px solid var(--sage); }
+.callout.amber { background: var(--amber-l); border-left: 3px solid var(--amber); }
+.callout.indigo { background: var(--indigo-l); border-left: 3px solid var(--indigo); }
+.callout strong { display: block; margin-bottom: 3px; font-family: 'Syne', sans-serif; font-size: 12px; letter-spacing: .5px; }
+.callout.rust strong { color: var(--rust); }
+.callout.sage strong { color: var(--sage); }
+.callout.amber strong { color: var(--amber); }
+.callout.indigo strong { color: var(--indigo); }
+
+/* ── FIELDS ── */
+.field { margin-bottom: 22px; }
+.field label {
+  display: block; font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--ink); margin-bottom: 5px;
+}
+.field .hint { font-size: 12px; color: var(--muted); margin-bottom: 7px; font-style: italic; }
+.field input[type=text],
+.field input[type=number],
+.field textarea,
+.field select {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Source Serif 4', serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: var(--rust);
+  box-shadow: 0 0 0 3px var(--rust-l);
+  background: #fff;
+}
+.field input::placeholder, .field textarea::placeholder { color: #bbb8b3; font-style: italic; }
+.field textarea { resize: vertical; min-height: 86px; }
+.field select option { background: #fff; }
+
+/* ── STRUCTURE GRID (Abertura/Desenvolvimento/Fechamento) ── */
+.struct-grid { display: flex; flex-direction: column; gap: 14px; }
+.struct-block {
+  border: 1.5px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.struct-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--border);
+}
+.struct-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.struct-icon.rust { background: var(--rust-l); border: 1px solid var(--rust-b); }
+.struct-icon.amber { background: var(--amber-l); border: 1px solid var(--amber-b); }
+.struct-icon.sage { background: var(--sage-l); border: 1px solid var(--sage-b); }
+.struct-meta { flex: 1; }
+.struct-name {
+  font-family: 'Syne', sans-serif; font-size: 13px;
+  font-weight: 700; color: var(--ink);
+}
+.struct-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted); letter-spacing: 1px;
+}
+.struct-body { padding: 16px; }
+.struct-body .field { margin-bottom: 14px; }
+.struct-body .field:last-child { margin-bottom: 0; }
+.struct-body label { font-size: 12px; }
+.struct-body textarea { min-height: 72px; font-size: 13px; }
+
+/* ── HOOKS GRID ── */
+.hooks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.hook-opt {
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 12px 13px; cursor: pointer; transition: all .2s;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.hook-opt:hover { border-color: var(--rust); background: var(--rust-l); }
+.hook-opt.sel { border-color: var(--rust); background: var(--rust-l); }
+.hook-opt input { margin-top: 2px; accent-color: var(--rust); flex-shrink: 0; }
+.hook-opt-txt strong { display: block; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.hook-opt-txt span { font-size: 11px; color: var(--muted); font-style: italic; }
+
+/* ── CTA OPTIONS ── */
+.cta-opts { display: flex; flex-direction: column; gap: 8px; }
+.cta-opt {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border: 1.5px solid var(--border);
+  border-radius: 8px; cursor: pointer; transition: all .2s; font-size: 13px;
+}
+.cta-opt:hover { border-color: var(--sage); background: var(--sage-l); }
+.cta-opt.sel { border-color: var(--sage); background: var(--sage-l); }
+.cta-opt input { accent-color: var(--sage); width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ── TONE SELECTOR ── */
+.tone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tone-card {
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 12px 10px; cursor: pointer; transition: all .2s;
+  text-align: center;
+}
+.tone-card:hover { border-color: var(--amber); background: var(--amber-l); }
+.tone-card.sel { border-color: var(--amber); background: var(--amber-l); }
+.tone-card input { display: none; }
+.tone-emoji { font-size: 22px; display: block; margin-bottom: 5px; }
+.tone-name { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--ink); }
+.tone-desc { font-size: 11px; color: var(--muted); margin-top: 2px; font-style: italic; }
+
+/* ── DURATION STRIP ── */
+.dur-strip { display: flex; gap: 8px; flex-wrap: wrap; }
+.dur-btn {
+  padding: 9px 16px; border: 1.5px solid var(--border);
+  border-radius: 8px; background: var(--cream);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 500; color: var(--muted);
+  cursor: pointer; transition: all .2s;
+}
+.dur-btn:hover { border-color: var(--rust); color: var(--rust); }
+.dur-btn.sel { border-color: var(--rust); background: var(--rust-l); color: var(--rust); font-weight: 700; }
+
+/* ── REVIEW CARD ── */
+.review-card {
+  background: var(--ink); border-radius: 12px;
+  padding: 22px; margin-bottom: 20px; color: #fff;
+}
+.review-card h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,.4); margin-bottom: 14px;
+}
+.review-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.08);
+  gap: 16px;
+}
+.review-row:last-child { border-bottom: none; }
+.review-lbl { font-size: 12px; color: rgba(255,255,255,.5); flex-shrink: 0; }
+.review-val { font-size: 13px; color: #fff; text-align: right; font-style: italic; }
+
+/* ── BUTTONS ── */
+.btn-row { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+.btn {
+  padding: 13px 26px; border-radius: 8px;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; border: none; transition: all .2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-back { background: var(--cream); border: 1.5px solid var(--border); color: var(--muted); }
+.btn-back:hover { border-color: var(--ink2); color: var(--ink); }
+.btn-fwd {
+  flex: 1; justify-content: center;
+  background: var(--rust); color: #fff;
+  box-shadow: 0 4px 16px rgba(193,68,14,.3);
+}
+.btn-fwd:hover { background: #a83a0c; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(193,68,14,.4); }
+.btn-done {
+  flex: 1; justify-content: center;
+  background: var(--sage); color: #fff;
+  box-shadow: 0 4px 16px rgba(74,124,89,.3);
+}
+.btn-done:hover { background: #3d6b4c; transform: translateY(-1px); }
+
+/* ── WELCOME ── */
+.welcome {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 52px 36px;
+  text-align: center; box-shadow: var(--shadow2);
+}
+.big-icon { font-size: 60px; display: block; margin-bottom: 20px; }
+.welcome h2 {
+  font-family: 'Syne', sans-serif; font-size: 28px;
+  font-weight: 800; color: var(--ink); margin-bottom: 12px;
+  letter-spacing: -.5px;
+}
+.welcome p { color: var(--muted); font-size: 14px; margin-bottom: 14px; max-width: 460px; margin-left: auto; margin-right: auto; font-style: italic; }
+.pill-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+.pill {
+  background: var(--cream); border: 1px solid var(--border);
+  border-radius: 4px; padding: 7px 16px; font-size: 12px;
+  font-family: 'JetBrains Mono', monospace; color: var(--ink2);
+}
+
+/* ── REPORT ── */
+.report-panel {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 36px 32px;
+  box-shadow: var(--shadow2); display: none;
+}
+.report-panel.active { display: block; }
+.report-header { text-align: center; margin-bottom: 24px; }
+.report-header h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--ink); margin-bottom: 8px; letter-spacing: -.5px; }
+.report-header p { color: var(--muted); font-size: 13px; line-height: 1.6; font-style: italic; }
+.report-box {
+  background: var(--cream); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 22px;
+  font-size: 13px; line-height: 1.95;
+  white-space: pre-wrap;
+  font-family: 'Source Serif 4', serif;
+  color: var(--ink); max-height: 540px; overflow-y: auto;
+}
+.report-loading { text-align: center; padding: 44px; color: var(--muted); font-style: italic; }
+.spinner {
+  display: inline-block; width: 34px; height: 34px;
+  border: 3px solid var(--border); border-top-color: var(--rust);
+  border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.report-actions { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.btn-copy {
+  flex: 1; padding: 13px; border-radius: 8px;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; background: var(--rust); color: #fff; border: none; transition: all .2s;
+}
+.btn-copy:hover { background: #a83a0c; transform: translateY(-1px); }
+.btn-print {
+  flex: 1; padding: 13px; border-radius: 8px;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; background: var(--sage); color: #fff; border: none; transition: all .2s;
+}
+.btn-print:hover { background: #3d6b4c; transform: translateY(-1px); }
+.btn-new {
+  padding: 13px 20px; border-radius: 8px;
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; background: var(--cream); color: var(--muted);
+  border: 1.5px solid var(--border); transition: all .2s;
+}
+.btn-new:hover { border-color: var(--rust); color: var(--rust); }
+
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: #fff; padding: 10px 22px;
+  border-radius: 4px; font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 9999;
+}
+.toast.show { opacity: 1; }
+
+/* PRINT */
+@media print {
+  .header, .prog, .btn-row, .report-actions, .welcome { display: none !important; }
+  .report-panel { display: block !important; box-shadow: none; border: none; padding: 0; }
+  .report-box { max-height: none; border: none; background: #fff; }
+  body { background: #fff; }
+}
+
+@media (max-width: 520px) {
+  .main { padding: 20px 10px 80px; }
+  .card, .welcome, .report-panel { padding: 22px 14px; }
+  .hooks-grid, .tone-grid { grid-template-columns: 1fr; }
+  .btn-row, .report-actions { flex-direction: column; }
+  .btn-back, .btn-fwd, .btn-done, .btn-copy, .btn-print { width: 100%; justify-content: center; }
+  .dur-strip { gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="hdr">
+    <div class="hdr-eyebrow">📚 Kit de Transformação do Conhecimento</div>
+    <h1>Roteirizador<br>de <em>Aulas</em></h1>
+    <p>Transforme cada aula do seu minicurso em um roteiro preciso, pronto para gravar — com abertura, desenvolvimento e fechamento estruturados.</p>
+  </div>
+</header>
+
+<div class="prog" id="prog">
+  <div class="prog-inner">
+    <div class="prog-top">
+      <span id="stepLbl">Etapa 1 de 5</span>
+      <span id="pctLbl">0%</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="phase-strip" id="phaseStrip"></div>
+  </div>
+</div>
+
+<main class="main">
+
+  <!-- WELCOME -->
+  <div class="welcome" id="welcomeCard">
+    <span class="big-icon">🎬</span>
+    <h2>Cada aula merece um roteiro</h2>
+    <p>No microlearning, uma aula sem roteiro é uma aula sem destino. Este roteirizador aplica a estrutura pedagógica que garante clareza, ritmo e impacto em cada minuto gravado.</p>
+    <div class="pill-row">
+      <div class="pill">⏱ 15–20 min por aula</div>
+      <div class="pill">🎯 5 etapas</div>
+      <div class="pill">📄 Roteiro pronto para gravar</div>
+    </div>
+    <p style="font-size:13px;">Preencha uma aula por vez. Ao final, você recebe o roteiro completo — formatado e pronto para usar na gravação.</p>
+    <button class="btn btn-fwd" onclick="startTool()" style="margin-top:22px;padding:16px 44px;">🎬 Criar meu roteiro</button>
+  </div>
+
+  <!-- ETAPA 1: IDENTIDADE DA AULA -->
+  <div class="card" id="s1">
+    <div class="c-step">Etapa 1 de 5 — Identidade</div>
+    <div class="c-title">Qual aula você vai roteirizar?</div>
+    <div class="c-sub">Cada roteiro é para uma única aula. Se tiver várias aulas, repita o processo para cada uma.</div>
+
+    <div class="callout rust">
+      <strong>🎯 O princípio do microlearning: uma ideia por aula</strong>
+      Cada aula deve ensinar UMA coisa e resolver UMA dúvida específica. Se você precisar de "e também...", é sinal de que virou duas aulas. Simplicidade é generosidade com o aluno.
+    </div>
+
+    <div class="field">
+      <label>Nome do seu minicurso</label>
+      <input type="text" id="curso_nome" placeholder="Ex: Os Primeiros 90 Dias como Líder">
+    </div>
+    <div class="field">
+      <label>Nome do módulo ao qual esta aula pertence</label>
+      <input type="text" id="modulo_nome" placeholder="Ex: Módulo 2 — Construindo autoridade sem impor">
+    </div>
+    <div class="field">
+      <label>Título desta aula</label>
+      <input type="text" id="aula_titulo" placeholder="Ex: Aula 3 — A diferença entre respeito e medo">
+    </div>
+    <div class="field">
+      <label>Qual é o número desta aula no módulo?</label>
+      <input type="number" id="aula_num" min="1" max="20" placeholder="Ex: 3" style="max-width:120px">
+    </div>
+    <div class="field">
+      <label>Duração planejada para esta aula</label>
+      <div class="dur-strip" id="durStrip">
+        <button class="dur-btn" onclick="selDur(this,'3 minutos')">3 min</button>
+        <button class="dur-btn" onclick="selDur(this,'5 minutos')">5 min</button>
+        <button class="dur-btn" onclick="selDur(this,'7 minutos')">7 min</button>
+        <button class="dur-btn" onclick="selDur(this,'8 minutos')">8 min</button>
+        <button class="dur-btn" onclick="selDur(this,'10 minutos')">10 min</button>
+      </div>
+      <input type="hidden" id="duracao_val">
+    </div>
+    <div class="field">
+      <label>Qual é o perfil do aluno desta aula?</label>
+      <div class="hint">Quem está do outro lado? Isso define a linguagem e a profundidade.</div>
+      <input type="text" id="aluno_perfil" placeholder="Ex: Gerente de primeira viagem, 35–45 anos, nunca teve formação formal em liderança">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-fwd" onclick="goTo(2)">Avançar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 2: NÚCLEO PEDAGÓGICO -->
+  <div class="card" id="s2">
+    <div class="c-step">Etapa 2 de 5 — Núcleo Pedagógico</div>
+    <div class="c-title">O coração da aula</div>
+    <div class="c-sub">Antes de escrever uma palavra do roteiro, precisamos ter cristalina clareza sobre o que o aluno vai aprender e por que isso importa para ele.</div>
+
+    <div class="callout sage">
+      <strong>📐 Clareza antes da câmera</strong>
+      Se você não consegue responder "o que o aluno vai conseguir fazer depois desta aula?" em uma frase, o conteúdo ainda não está maduro para gravar. Esta etapa é o trabalho mais importante do roteiro.
+    </div>
+
+    <div class="field">
+      <label>Em uma frase: o que o aluno vai conseguir FAZER após esta aula?</label>
+      <div class="hint">Use um verbo de ação: identificar, aplicar, criar, distinguir, evitar, estruturar...</div>
+      <input type="text" id="objetivo" placeholder="Ex: Identificar se sua liderança está gerando respeito ou apenas conformidade por medo">
+    </div>
+
+    <div class="field">
+      <label>Qual é a ideia central — o conceito-chave que esta aula ensina?</label>
+      <div class="hint">Se o aluno só lembrasse de uma coisa desta aula, o que seria?</div>
+      <input type="text" id="ideia_central" placeholder="Ex: Respeito é construído com consistência e clareza. Medo é construído com imprevisibilidade e punição.">
+    </div>
+
+    <div class="field">
+      <label>Por que isso importa para o aluno agora? Qual dor ou problema esta aula resolve?</label>
+      <textarea id="por_que" placeholder="Ex: Muitos novos líderes confundem equipe quieta com equipe satisfeita. Só percebem o erro quando alguém pede demissão ou o engajamento despenca..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Qual é o equívoco mais comum que o aluno tem sobre este tema — e que esta aula vai corrigir?</label>
+      <div class="hint">Confrontar um mito ou erro de crença é uma das estruturas mais poderosas do microlearning.</div>
+      <textarea id="equivoco" placeholder="Ex: A maioria acha que ser rigoroso é o mesmo que ser autoritário. Esta aula vai mostrar que rigor e respeito são complementares, não opostos..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(1)">← Voltar</button>
+      <button class="btn btn-fwd" onclick="goTo(3)">Avançar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 3: ESTRUTURA DA AULA -->
+  <div class="card" id="s3">
+    <div class="c-step">Etapa 3 de 5 — Estrutura</div>
+    <div class="c-title">Abertura, Desenvolvimento e Fechamento</div>
+    <div class="c-sub">Todo roteiro de microlearning segue esta estrutura: prenda a atenção → entregue o conteúdo → feche com ação. Cada bloco tem uma função precisa.</div>
+
+    <div class="struct-grid">
+
+      <!-- ABERTURA -->
+      <div class="struct-block">
+        <div class="struct-head">
+          <div class="struct-icon rust">🎣</div>
+          <div class="struct-meta">
+            <div class="struct-name">ABERTURA — O Gancho</div>
+            <div class="struct-time">~20% da duração total</div>
+          </div>
+        </div>
+        <div class="struct-body">
+          <div class="callout rust" style="margin-bottom:14px;font-size:12px">
+            <strong>Função</strong>
+            Capturar a atenção nos primeiros 30 segundos. O aluno precisa sentir que esta aula é para ele e que vale o tempo.
+          </div>
+          <div class="field">
+            <label>Como você vai abrir a aula? (escolha seu tipo de gancho)</label>
+            <div class="hint">Clique para selecionar o tipo e depois escreva o texto abaixo.</div>
+            <div class="hooks-grid" id="hooks_grid">
+              <label class="hook-opt" onclick="selHook(this,'Pergunta provocadora')">
+                <input type="radio" name="hook">
+                <div class="hook-opt-txt"><strong>❓ Pergunta provocadora</strong><span>"Você já percebeu que..."</span></div>
+              </label>
+              <label class="hook-opt" onclick="selHook(this,'História ou caso real')">
+                <input type="radio" name="hook">
+                <div class="hook-opt-txt"><strong>📖 História ou caso real</strong><span>Um episódio vivido ou observado</span></div>
+              </label>
+              <label class="hook-opt" onclick="selHook(this,'Dado ou estatística surpreendente')">
+                <input type="radio" name="hook">
+                <div class="hook-opt-txt"><strong>📊 Dado surpreendente</strong><span>Um número que choca ou intriga</span></div>
+              </label>
+              <label class="hook-opt" onclick="selHook(this,'Mito a ser derrubado')">
+                <input type="radio" name="hook">
+                <div class="hook-opt-txt"><strong>💣 Mito a ser derrubado</strong><span>"Todo mundo acha que... mas..."</span></div>
+              </label>
+              <label class="hook-opt" onclick="selHook(this,'Promessa direta')">
+                <input type="radio" name="hook">
+                <div class="hook-opt-txt"><strong>🎯 Promessa direta</strong><span>"Nesta aula você vai aprender..."</span></div>
+              </label>
+              <label class="hook-opt" onclick="selHook(this,'Situação do cotidiano')">
+                <input type="radio" name="hook">
+                <div class="hook-opt-txt"><strong>🌅 Situação cotidiana</strong><span>Um cenário que o aluno reconhece</span></div>
+              </label>
+            </div>
+            <input type="hidden" id="hook_tipo">
+          </div>
+          <div class="field">
+            <label>Escreva o texto de abertura (o que você vai falar literalmente)</label>
+            <textarea id="abertura_texto" placeholder="Ex: Você já percebeu que às vezes a sua equipe faz exatamente o que você pediu — mas sem nenhuma iniciativa? Ninguém vai além do mínimo. Ninguém traz uma ideia nova. E quando você pergunta 'tudo bem?', todo mundo diz que sim. Esse pode ser um sinal de que sua liderança está gerando conformidade — não comprometimento. E hoje a gente vai falar sobre a diferença..."></textarea>
+          </div>
+          <div class="field">
+            <label>O que você vai dizer que o aluno vai aprender/ganhar nesta aula?</label>
+            <input type="text" id="preview_aula" placeholder="Ex: Hoje você vai aprender a distinguir os sinais de uma equipe que respeita de uma que apenas obedece por medo">
+          </div>
+        </div>
+      </div>
+
+      <!-- DESENVOLVIMENTO -->
+      <div class="struct-block">
+        <div class="struct-head">
+          <div class="struct-icon amber">📚</div>
+          <div class="struct-meta">
+            <div class="struct-name">DESENVOLVIMENTO — O Conteúdo</div>
+            <div class="struct-time">~60% da duração total</div>
+          </div>
+        </div>
+        <div class="struct-body">
+          <div class="callout amber" style="margin-bottom:14px;font-size:12px">
+            <strong>Função</strong>
+            Entregar a ideia central com clareza. Use no máximo 3 pontos principais. Cada ponto com explicação + exemplo real da sua experiência.
+          </div>
+          <div class="field">
+            <label>Ponto 1 — Explique o primeiro aspecto da ideia central</label>
+            <div class="hint">Explique + dê um exemplo real da sua experiência ou que você observou.</div>
+            <textarea id="ponto1" placeholder="Ex: O primeiro sinal de liderança pelo medo é a ausência de discordância. Quando você propõe algo e ninguém questiona — jamais — isso não é alinhamento. É silêncio estratégico. Lembro de um gestor que orgulhava de suas reuniões 'sem conflito'. Seis meses depois, perdeu três dos melhores talentos da equipe. Todos disseram na saída que não se sentiam ouvidos..."></textarea>
+          </div>
+          <div class="field">
+            <label>Ponto 2 — O segundo aspecto ou aprofundamento</label>
+            <textarea id="ponto2" placeholder="Ex: O segundo sinal é a dependência excessiva de aprovação. Na liderança pelo respeito, as pessoas tomam decisões dentro do seu escopo sem precisar confirmar cada passo. Na liderança pelo medo, todos esperam o sinal verde — porque errar tem um custo alto. Já vi equipes inteiras paralíticas aguardando o chefe voltar de férias..."></textarea>
+          </div>
+          <div class="field">
+            <label>Ponto 3 — O terceiro aspecto ou a virada prática (opcional)</label>
+            <textarea id="ponto3" placeholder="Ex: O terceiro e mais revelador: como sua equipe reage ao seu feedback. Quando você aponta um erro, as pessoas ficam defensivas e procuram culpados? Ou ficam curiosas e buscam solução? A diferença está em como você conduziu dezenas de conversas difíceis nos últimos meses..."></textarea>
+          </div>
+          <div class="field">
+            <label>Qual é a metáfora, analogia ou comparação que facilita o entendimento?</label>
+            <div class="hint">Uma boa analogia vale por dez explicações teóricas.</div>
+            <textarea id="analogia" placeholder="Ex: Pense na diferença entre um maestro e um xerife. O maestro tira o melhor de cada músico — mesmo os que erram — porque a confiança cria performance. O xerife mantém a ordem com a ameaça da punição. Orquestras precisam de maestros. Equipes também."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- FECHAMENTO -->
+      <div class="struct-block">
+        <div class="struct-head">
+          <div class="struct-icon sage">🎯</div>
+          <div class="struct-meta">
+            <div class="struct-name">FECHAMENTO — A Ação</div>
+            <div class="struct-time">~20% da duração total</div>
+          </div>
+        </div>
+        <div class="struct-body">
+          <div class="callout sage" style="margin-bottom:14px;font-size:12px">
+            <strong>Função</strong>
+            Consolidar o aprendizado e gerar uma ação imediata. O aluno precisa sair da aula sabendo exatamente o que fazer diferente.
+          </div>
+          <div class="field">
+            <label>Síntese — Como você vai resumir a ideia central em 2-3 frases?</label>
+            <textarea id="sintese" placeholder="Ex: Respeito não se impõe — se constrói. Ele nasce da consistência entre o que você fala e o que você faz, da clareza sobre o que espera das pessoas, e da segurança que você oferece para quem erra e aprende. Medo pode produzir obediência. Respeito produz comprometimento."></textarea>
+          </div>
+          <div class="field">
+            <label>Qual é a ação prática que você vai pedir ao aluno ao final?</label>
+            <div class="hint">Uma ação pequena, específica e possível de fazer hoje. O microlearning se completa na aplicação.</div>
+            <div class="cta-opts" id="cta_opts">
+              <label class="cta-opt" onclick="selCta(this,'Reflexão escrita')"><input type="radio" name="cta"> ✍️ Reflexão escrita — o aluno registra algo</label>
+              <label class="cta-opt" onclick="selCta(this,'Ação no mundo real')"><input type="radio" name="cta"> 🌍 Ação no mundo real — o aluno faz algo</label>
+              <label class="cta-opt" onclick="selCta(this,'Observação dirigida')"><input type="radio" name="cta"> 👁️ Observação dirigida — o aluno presta atenção em algo</label>
+              <label class="cta-opt" onclick="selCta(this,'Conversa com alguém')"><input type="radio" name="cta"> 💬 Conversa com alguém — o aluno aplica com uma pessoa</label>
+              <label class="cta-opt" onclick="selCta(this,'Uso de ferramenta ou template')"><input type="radio" name="cta"> 📋 Usa uma ferramenta ou template do curso</label>
+            </div>
+            <input type="hidden" id="cta_tipo">
+          </div>
+          <div class="field">
+            <label>Escreva exatamente o que você vai pedir ao aluno para fazer</label>
+            <textarea id="cta_texto" placeholder="Ex: Antes de fechar essa aula, pega um papel ou abre o bloco de notas. Escreve o nome de duas pessoas da sua equipe. Para cada uma, responde: essa pessoa discordaria de mim abertamente numa reunião? Se a resposta for não, você tem algo importante a investigar essa semana. Esse é seu exercício."></textarea>
+          </div>
+          <div class="field">
+            <label>Como você vai fazer a ponte para a próxima aula? (teaser)</label>
+            <input type="text" id="teaser" placeholder="Ex: Na próxima aula, a gente vai falar sobre como ter conversas difíceis sem destruir o relacionamento — e por que a maioria dos líderes evita justamente o que precisaria fazer.">
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /struct-grid -->
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(2)">← Voltar</button>
+      <button class="btn btn-fwd" onclick="goTo(4)">Avançar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 4: TOM E FORMATO -->
+  <div class="card" id="s4">
+    <div class="c-step">Etapa 4 de 5 — Tom e Formato</div>
+    <div class="c-title">Como você vai soar na câmera?</div>
+    <div class="c-sub">O tom define a experiência do aluno tanto quanto o conteúdo. Um roteiro bem escrito no tom errado soa falso. Defina o seu aqui.</div>
+
+    <div class="field">
+      <label>Qual é o tom predominante desta aula?</label>
+      <div class="tone-grid">
+        <label class="tone-card" onclick="selTone(this,'Mentor experiente')">
+          <input type="radio" name="tom">
+          <span class="tone-emoji">🧭</span>
+          <span class="tone-name">Mentor experiente</span>
+          <span class="tone-desc">Sábio, direto, acolhedor</span>
+        </label>
+        <label class="tone-card" onclick="selTone(this,'Parceiro de conversa')">
+          <input type="radio" name="tom">
+          <span class="tone-emoji">☕</span>
+          <span class="tone-name">Parceiro de conversa</span>
+          <span class="tone-desc">Informal, próximo, honesto</span>
+        </label>
+        <label class="tone-card" onclick="selTone(this,'Especialista técnico')">
+          <input type="radio" name="tom">
+          <span class="tone-emoji">🔬</span>
+          <span class="tone-name">Especialista técnico</span>
+          <span class="tone-desc">Preciso, fundamentado, claro</span>
+        </label>
+        <label class="tone-card" onclick="selTone(this,'Provocador reflexivo')">
+          <input type="radio" name="tom">
+          <span class="tone-emoji">🔥</span>
+          <span class="tone-name">Provocador reflexivo</span>
+          <span class="tone-desc">Desafia, questiona, incomoda</span>
+        </label>
+        <label class="tone-card" onclick="selTone(this,'Contador de histórias')">
+          <input type="radio" name="tom">
+          <span class="tone-emoji">📖</span>
+          <span class="tone-name">Contador de histórias</span>
+          <span class="tone-desc">Narrativo, envolvente, emocional</span>
+        </label>
+        <label class="tone-card" onclick="selTone(this,'Coach motivador')">
+          <input type="radio" name="tom">
+          <span class="tone-emoji">⚡</span>
+          <span class="tone-name">Coach motivador</span>
+          <span class="tone-desc">Energético, prático, encorajador</span>
+        </label>
+      </div>
+      <input type="hidden" id="tom_val">
+    </div>
+
+    <div class="field">
+      <label>Qual formato visual você vai usar nesta aula?</label>
+      <div class="cta-opts" id="fmt_opts">
+        <label class="cta-opt" onclick="selFmt(this,'Câmera direta — fala direto para o aluno')"><input type="radio" name="fmt"> 🎥 Câmera direta — fala direto para o aluno</label>
+        <label class="cta-opt" onclick="selFmt(this,'Voz + slides com pontos principais')"><input type="radio" name="fmt"> 📊 Voz + slides com pontos principais</label>
+        <label class="cta-opt" onclick="selFmt(this,'Tela compartilhada com demonstração')"><input type="radio" name="fmt"> 🖥️ Tela compartilhada com demonstração</label>
+        <label class="cta-opt" onclick="selFmt(this,'Áudio apenas — sem imagem')"><input type="radio" name="fmt"> 🎙️ Áudio apenas — sem imagem</label>
+        <label class="cta-opt" onclick="selFmt(this,'Câmera + quadro branco ou anotações')"><input type="radio" name="fmt"> 📝 Câmera + quadro branco ou anotações</label>
+      </div>
+      <input type="hidden" id="fmt_val">
+    </div>
+
+    <div class="field">
+      <label>Há alguma instrução especial de produção para esta aula? (opcional)</label>
+      <div class="hint">Ex: mostrar um gráfico específico, usar um template, exibir um exemplo de documento...</div>
+      <textarea id="prod_notas" placeholder="Ex: Mostrar o slide com os 3 sinais de liderança pelo medo durante o ponto 1. Ter o template 'Mapa de Engajamento' aberto na tela para o CTA..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Qual palavra, expressão ou jargão você quer EVITAR nesta aula?</label>
+      <div class="hint">Palavras que sinalizam falta de autenticidade ou que o aluno não usa no cotidiano dele.</div>
+      <input type="text" id="evitar" placeholder="Ex: Sinergia, paradigma, empoderamento, stakeholders — prefiro linguagem direta e cotidiana">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(3)">← Voltar</button>
+      <button class="btn btn-fwd" onclick="goTo(5)">Avançar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 5: REVISÃO -->
+  <div class="card" id="s5">
+    <div class="c-step">Etapa 5 de 5 — Revisão</div>
+    <div class="c-title">Confira antes de gerar o roteiro</div>
+    <div class="c-sub">Revise os elementos principais da sua aula. Ao confirmar, o roteiro completo será gerado com linguagem natural, pronto para você gravar.</div>
+
+    <div class="review-card" id="reviewCard">
+      <h4>📋 Resumo da Aula</h4>
+      <!-- filled by JS -->
+    </div>
+
+    <div class="callout indigo">
+      <strong>✅ O que acontece ao clicar em "Gerar roteiro"</strong>
+      Todos os elementos que você preencheu serão enviados para a IA, que vai costurar um roteiro fluido e natural — com as transições entre as partes, sugestões de entonação e marcações de tempo. O resultado é um roteiro que soa como você, não como um texto de livro didático.
+    </div>
+
+    <div class="field">
+      <label>Tem alguma instrução especial para o roteiro gerado?</label>
+      <div class="hint">Ex: usar mais perguntas retóricas, incluir pausas indicadas, ser mais conciso, usar mais exemplos pessoais...</div>
+      <textarea id="instrucoes_extras" placeholder="Ex: Quero que o roteiro seja bem coloquial, com frases curtas. Pode incluir [PAUSA] onde achar que preciso respirar ou deixar o aluno processar..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(4)">← Voltar</button>
+      <button class="btn btn-done" onclick="generateReport()">🎬 Gerar meu roteiro</button>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="report-panel" id="reportPanel">
+    <div class="report-header">
+      <span style="font-size:52px;display:block;margin-bottom:14px;">🎬</span>
+      <h2>Seu roteiro está pronto!</h2>
+      <p>Use <strong>📋 Copiar</strong> para colar no Word ou Google Docs.<br>Use <strong>🖨️ Imprimir</strong> e escolha "Salvar como PDF" na impressora do navegador.<br>Para roteirizar outra aula, clique em <strong>Nova aula</strong>.</p>
+    </div>
+    <div class="report-box" id="reportBox">
+      <div class="report-loading"><div class="spinner"></div><br>Gerando seu roteiro com IA...</div>
+    </div>
+    <div class="report-actions">
+      <button class="btn-copy" onclick="copyReport()">📋 Copiar roteiro</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      <button class="btn-new" onclick="novaAula()">🎬 Nova aula</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast">✅ Copiado!</div>
+
+<script>
+const TOTAL = 5;
+const phases = ['Identidade','Pedagógico','Estrutura','Tom','Revisão'];
+let cur = 0;
+
+function startTool() {
+  document.getElementById('welcomeCard').style.display = 'none';
+  document.getElementById('prog').style.display = 'block';
+  buildPhases();
+  goTo(1);
+}
+
+function buildPhases() {
+  const strip = document.getElementById('phaseStrip');
+  strip.innerHTML = '';
+  phases.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'ps-dot'; d.id = `ps${i}`;
+    d.title = phases[i];
+    strip.appendChild(d);
+  });
+}
+
+function goTo(n) {
+  for (let i = 1; i <= TOTAL; i++) {
+    const el = document.getElementById(`s${i}`);
+    if (el) el.classList.remove('active');
+  }
+  document.getElementById('reportPanel').classList.remove('active');
+  cur = n;
+  const card = document.getElementById(`s${n}`);
+  if (card) { card.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  updateProg();
+  if (n === 5) fillReview();
+}
+
+function updateProg() {
+  const pct = Math.round(((cur - 1) / TOTAL) * 100);
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('pctLbl').textContent = pct + '%';
+  document.getElementById('stepLbl').textContent = `Etapa ${cur} de ${TOTAL}`;
+  for (let i = 0; i < TOTAL; i++) {
+    const el = document.getElementById(`ps${i}`);
+    if (!el) continue;
+    el.className = 'ps-dot';
+    if (i < cur - 1) el.classList.add('done');
+    else if (i === cur - 1) el.classList.add('active');
+  }
+}
+
+// SELECTOR HELPERS
+function selDur(btn, val) {
+  document.querySelectorAll('#durStrip .dur-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('duracao_val').value = val;
+}
+function selHook(opt, val) {
+  document.querySelectorAll('#hooks_grid .hook-opt').forEach(o => o.classList.remove('sel'));
+  opt.classList.add('sel');
+  document.getElementById('hook_tipo').value = val;
+}
+function selCta(opt, val) {
+  document.querySelectorAll('#cta_opts .cta-opt').forEach(o => o.classList.remove('sel'));
+  opt.classList.add('sel');
+  document.getElementById('cta_tipo').value = val;
+}
+function selTone(card, val) {
+  document.querySelectorAll('.tone-card').forEach(c => c.classList.remove('sel'));
+  card.classList.add('sel');
+  document.getElementById('tom_val').value = val;
+}
+function selFmt(opt, val) {
+  const parent = opt.closest('.cta-opts');
+  if (parent) parent.querySelectorAll('.cta-opt').forEach(o => o.classList.remove('sel'));
+  opt.classList.add('sel');
+  document.getElementById('fmt_val').value = val;
+}
+
+// REVIEW
+function fillReview() {
+  const rows = [
+    ['Curso', g('curso_nome')],
+    ['Módulo', g('modulo_nome')],
+    ['Aula', g('aula_titulo')],
+    ['Duração', g('duracao_val')],
+    ['Objetivo', g('objetivo')],
+    ['Ideia central', g('ideia_central')],
+    ['Tipo de gancho', g('hook_tipo')],
+    ['Tipo de CTA', g('cta_tipo')],
+    ['Tom', g('tom_val')],
+    ['Formato', g('fmt_val')],
+  ];
+  const rc = document.getElementById('reviewCard');
+  rc.innerHTML = '<h4>📋 Resumo da Aula</h4>' +
+    rows.filter(r => r[1] !== 'Não informado').map(r =>
+      `<div class="review-row"><span class="review-lbl">${r[0]}</span><span class="review-val">${r[1]}</span></div>`
+    ).join('');
+}
+
+function g(id) {
+  const el = document.getElementById(id);
+  return el && el.value.trim() ? el.value.trim() : 'Não informado';
+}
+
+async function generateReport() {
+  for (let i = 1; i <= TOTAL; i++) {
+    const el = document.getElementById(`s${i}`);
+    if (el) el.classList.remove('active');
+  }
+  document.getElementById('progFill').style.width = '100%';
+  document.getElementById('pctLbl').textContent = '100%';
+  for (let i = 0; i < TOTAL; i++) {
+    const el = document.getElementById(`ps${i}`);
+    if (el) el.className = 'ps-dot done';
+  }
+  document.getElementById('reportPanel').classList.add('active');
+  document.getElementById('reportBox').innerHTML = '<div class="report-loading"><div class="spinner"></div><br>Gerando seu roteiro com IA...</div>';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const d = {
+    curso: g('curso_nome'), modulo: g('modulo_nome'),
+    titulo: g('aula_titulo'), num: g('aula_num'),
+    duracao: g('duracao_val'), aluno: g('aluno_perfil'),
+    objetivo: g('objetivo'), ideia: g('ideia_central'),
+    por_que: g('por_que'), equivoco: g('equivoco'),
+    hook_tipo: g('hook_tipo'), abertura: g('abertura_texto'),
+    preview: g('preview_aula'),
+    ponto1: g('ponto1'), ponto2: g('ponto2'), ponto3: g('ponto3'),
+    analogia: g('analogia'), sintese: g('sintese'),
+    cta_tipo: g('cta_tipo'), cta: g('cta_texto'), teaser: g('teaser'),
+    tom: g('tom_val'), fmt: g('fmt_val'),
+    prod: g('prod_notas'), evitar: g('evitar'),
+    extras: g('instrucoes_extras')
+  };
+
+  const prompt = `Você é um especialista em design instrucional e microlearning com profunda experiência em roteiros para educação online. Sua tarefa é criar um ROTEIRO COMPLETO E FLUIDO para a aula descrita abaixo.
+
+O roteiro deve soar como uma conversa real — não como um texto acadêmico. Use os elementos fornecidos como base e costure tudo em um roteiro natural, com ritmo, transições suaves e marcações úteis para quem vai gravar.
+
+═══════════════════════════════════
+DADOS DA AULA
+═══════════════════════════════════
+Curso: ${d.curso}
+Módulo: ${d.modulo}
+Título da aula: ${d.titulo} (Aula ${d.num})
+Duração planejada: ${d.duracao}
+Perfil do aluno: ${d.aluno}
+Tom de comunicação: ${d.tom}
+Formato de gravação: ${d.fmt}
+Palavras/expressões a evitar: ${d.evitar}
+
+NÚCLEO PEDAGÓGICO:
+Objetivo (o que o aluno vai conseguir fazer): ${d.objetivo}
+Ideia central: ${d.ideia}
+Por que importa para o aluno: ${d.por_que}
+Equívoco a ser corrigido: ${d.equivoco}
+
+ABERTURA:
+Tipo de gancho: ${d.hook_tipo}
+Texto de abertura: ${d.abertura}
+Preview do que o aluno vai aprender: ${d.preview}
+
+DESENVOLVIMENTO:
+Ponto 1: ${d.ponto1}
+Ponto 2: ${d.ponto2}
+Ponto 3: ${d.ponto3}
+Analogia/Metáfora: ${d.analogia}
+
+FECHAMENTO:
+Síntese: ${d.sintese}
+Tipo de CTA: ${d.cta_tipo}
+Texto do CTA: ${d.cta}
+Teaser para próxima aula: ${d.teaser}
+
+Notas de produção: ${d.prod}
+Instruções especiais: ${d.extras}
+
+═══════════════════════════════════
+INSTRUÇÕES PARA O ROTEIRO
+═══════════════════════════════════
+Crie o roteiro no formato abaixo (texto puro, sem markdown):
+
+════════════════════════════════════
+ROTEIRO — ${d.titulo}
+${d.curso} | ${d.modulo}
+Duração: ${d.duracao} | Tom: ${d.tom} | Formato: ${d.fmt}
+════════════════════════════════════
+
+[ANTES DE GRAVAR]
+Lista de preparação: o que ter em mãos, como se posicionar, qual ambiente configurar, etc.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ABERTURA (~${d.duracao === '3 minutos' ? '40s' : d.duracao === '5 minutos' ? '1min' : '1min30s'})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Use o gancho informado. Escreva o texto fluido, natural, em primeira pessoa, exatamente como o professor deve falar. Inclua [PAUSA] onde for útil. Adicione (tom sugerido) onde relevante.]
+
+Transição para o conteúdo:
+[Frase de ponte entre abertura e desenvolvimento]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESENVOLVIMENTO (~60% da duração)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PONTO 1:
+[Escreva o ponto 1 em linguagem falada, fluida. Inclua o exemplo real. Marque com [SLIDE] ou [RECURSO VISUAL] onde for pertinente.]
+
+Transição:
+[Frase de ponte para o ponto 2]
+
+PONTO 2:
+[Escreva o ponto 2 da mesma forma]
+
+Transição:
+[Frase de ponte para o ponto 3 ou fechamento]
+
+PONTO 3 (se houver):
+[Escreva o ponto 3 ou a virada prática]
+
+A ANALOGIA:
+[Apresente a metáfora/analogia de forma integrada ao texto]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FECHAMENTO (~20% da duração)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SÍNTESE:
+[A síntese em linguagem falada — máximo 3 frases marcantes]
+
+CHAMADA PARA AÇÃO:
+[O CTA em linguagem direta, motivadora, específica. O aluno precisa saber exatamente o que fazer.]
+
+TEASER DA PRÓXIMA AULA:
+[Crie curiosidade para a próxima aula sem entregar o conteúdo]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NOTAS DE EDIÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3 a 5 sugestões específicas para a edição do vídeo: cortes, recursos visuais, músicas, efeitos, legendas]
+
+════════════════════════════════════
+Kit de Transformação do Conhecimento
+Baseado no Modelo SECI — Nonaka & Takeuchi
+════════════════════════════════════
+
+REGRAS IMPORTANTES:
+- Escreva em primeira pessoa do singular (o professor falando)
+- Linguagem coloquial e natural — evite as palavras/expressões listadas
+- Tom consistente com o perfil escolhido: ${d.tom}
+- Inclua [PAUSA] onde o silêncio adiciona impacto
+- Inclua (acelera um pouco), (diminui o ritmo), (olha direto para a câmera) como direções quando útil
+- O roteiro deve soar como o professor, não como um livro
+- Seja generoso com exemplos e específico nas transições`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content && data.content[0] ? data.content[0].text : null;
+    if (text) {
+      document.getElementById('reportBox').textContent = text;
+    } else {
+      showFallback(d);
+    }
+  } catch (e) {
+    showFallback(d);
+  }
+}
+
+function showFallback(d) {
+  document.getElementById('reportBox').textContent =
+`════════════════════════════════════
+ROTEIRO — ${d.titulo}
+${d.curso} | ${d.modulo}
+Duração: ${d.duracao} | Tom: ${d.tom} | Formato: ${d.fmt}
+════════════════════════════════════
+
+[ANTES DE GRAVAR]
+• Confirme iluminação e silêncio do ambiente
+• Tenha à mão: ${d.prod !== 'Não informado' ? d.prod : 'seus materiais de apoio'}
+• Revise o objetivo desta aula: ${d.objetivo}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ABERTURA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Gancho — ${d.hook_tipo}]
+${d.abertura}
+
+[PAUSA]
+
+${d.preview}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESENVOLVIMENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IDEIA CENTRAL: ${d.ideia}
+
+PONTO 1:
+${d.ponto1}
+
+PONTO 2:
+${d.ponto2}
+
+${d.ponto3 !== 'Não informado' ? 'PONTO 3:\n' + d.ponto3 + '\n' : ''}
+ANALOGIA:
+${d.analogia}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FECHAMENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SÍNTESE:
+${d.sintese}
+
+[PAUSA]
+
+CHAMADA PARA AÇÃO — ${d.cta_tipo}:
+${d.cta}
+
+PRÓXIMA AULA:
+${d.teaser}
+
+════════════════════════════════════
+Kit de Transformação do Conhecimento
+Baseado no Modelo SECI — Nonaka & Takeuchi
+════════════════════════════════════`;
+}
+
+function copyReport() {
+  const text = document.getElementById('reportBox').textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('✅ Roteiro copiado!'))
+      .catch(() => selectAll());
+  } else {
+    selectAll();
+  }
+}
+function selectAll() {
+  const box = document.getElementById('reportBox');
+  const range = document.createRange();
+  range.selectNodeContents(box);
+  const sel = window.getSelection();
+  sel.removeAllRanges(); sel.addRange(range);
+  showToast('✅ Texto selecionado — pressione Ctrl+C para copiar');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+function novaAula() {
+  document.getElementById('reportPanel').classList.remove('active');
+  // Clear key fields for new lesson
+  ['aula_titulo','aula_num','objetivo','ideia_central','por_que','equivoco',
+   'abertura_texto','preview_aula','ponto1','ponto2','ponto3','analogia',
+   'sintese','cta_texto','teaser','prod_notas','evitar','instrucoes_extras'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['hook_tipo','cta_tipo','tom_val','fmt_val','duracao_val'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('.hook-opt.sel, .cta-opt.sel, .tone-card.sel, .dur-btn.sel').forEach(el => el.classList.remove('sel'));
+  goTo(1);
+}
+</script>
+</body>
+</html>

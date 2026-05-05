@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recorte de Nicho — Kit de Transformação do Conhecimento</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f3f8;--card:#fff;--border:#e0dff0;--text:#1a1a2e;--muted:#8888aa;--slate:#4a4a6a;--teal:#2a7f8f;--teal-l:rgba(42,127,143,.15);--teal-b:rgba(42,127,143,.35);--teal-p:#f0f9fa;--amber:#c07820;--amber-l:rgba(192,120,32,.15);--amber-b:rgba(192,120,32,.35);--green:#2a7a50;--green-l:rgba(42,122,80,.15);--shadow:0 4px 24px rgba(26,26,46,.08);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.65;}
+.header{background:var(--text);padding:48px 24px 40px;text-align:center;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 20% 50%,rgba(42,127,143,.2),transparent 70%),radial-gradient(ellipse 50% 70% at 80% 50%,rgba(192,120,32,.14),transparent 70%);}
+.hdr-inner{position:relative;z-index:1;max-width:680px;margin:0 auto;}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(42,127,143,.2);border:1px solid rgba(42,127,143,.4);color:#7dd6e8;font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:700;padding:6px 18px;border-radius:20px;margin-bottom:20px;}
+.header h1{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,44px);font-weight:700;color:#fff;margin-bottom:12px;line-height:1.15;}
+.header h1 em{font-style:italic;color:#7dd6e8;}
+.header p{color:rgba(255,255,255,.6);font-size:14px;font-weight:300;max-width:500px;margin:0 auto;}
+.prog{background:#fff;border-bottom:1px solid var(--border);padding:13px 24px;position:sticky;top:0;z-index:100;display:none;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+.prog-inner{max-width:680px;margin:0 auto;}
+.prog-top{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+.prog-track{background:var(--border);border-radius:6px;height:5px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),#3ab0c5);border-radius:6px;transition:width .5s ease;width:0;}
+.phase-dots{display:flex;gap:6px;margin-top:10px;}
+.pdot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s;}
+.pdot.done{background:var(--green);}
+.pdot.active{background:var(--teal);}
+.main{max-width:680px;margin:0 auto;padding:32px 16px 80px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:34px 28px;margin-bottom:22px;display:none;box-shadow:var(--shadow);animation:rise .4s ease;}
+.card.active{display:block;}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.c-phase{font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:700;color:var(--teal);margin-bottom:8px;}
+.c-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.25;}
+.c-sub{font-size:13px;color:var(--muted);margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.callout{border-radius:12px;padding:15px 17px;margin-bottom:20px;font-size:13px;line-height:1.65;}
+.callout.teal{background:var(--teal-p);border:1px solid var(--teal-b);}
+.callout.amber{background:rgba(192,120,32,.08);border:1px solid var(--amber-b);}
+.callout strong{display:block;margin-bottom:4px;font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+.callout.teal strong{color:var(--teal);}
+.callout.amber strong{color:var(--amber);}
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.field .hint{font-size:12px;color:var(--muted);margin-bottom:7px;font-style:italic;}
+.field input,.field textarea,.field select{width:100%;padding:12px 14px;background:#fafafa;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}
+.field input:focus,.field textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-l);background:#fff;}
+.field input::placeholder,.field textarea::placeholder{color:#aaa;}
+.field textarea{resize:vertical;min-height:86px;}
+.tag-wrap{border:1.5px solid var(--border);border-radius:10px;background:#fafafa;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px;cursor:text;transition:border-color .2s;}
+.tag-wrap:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-l);}
+.tag{background:var(--teal-p);border:1px solid var(--teal-b);color:var(--teal);padding:4px 10px 4px 12px;border-radius:20px;font-size:13px;display:flex;align-items:center;gap:6px;}
+.tag-x{cursor:pointer;font-size:15px;line-height:1;}
+.tag-inp{border:none;outline:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);min-width:120px;flex:1;padding:4px;}
+.radio-grp,.check-grp{display:flex;flex-direction:column;gap:8px;}
+.r-item,.c-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;}
+.r-item:hover,.c-item:hover,.r-item.sel,.c-item.sel{border-color:var(--teal);background:var(--teal-p);}
+.r-item input,.c-item input{margin-top:2px;width:16px;height:16px;accent-color:var(--teal);flex-shrink:0;}
+.r-item-text strong{display:block;font-size:13px;font-weight:700;margin-bottom:2px;}
+.r-item-text span{font-size:12px;color:var(--muted);}
+.scale-row{display:flex;gap:8px;margin-top:8px;}
+.scale-btn{flex:1;padding:10px 6px;border:1.5px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;text-align:center;font-size:13px;font-weight:700;color:var(--muted);transition:all .2s;font-family:'DM Sans',sans-serif;}
+.scale-btn:hover,.scale-btn.sel{border-color:var(--teal);color:var(--teal);background:var(--teal-p);}
+.scale-btn.sel{background:var(--teal);color:#fff;}
+.scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;}
+
+/* NICHO BUILDER */
+.nicho-builder{background:var(--text);border-radius:14px;padding:24px;margin:18px 0;}
+.nicho-builder h4{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#7dd6e8;font-weight:700;margin-bottom:14px;}
+.nicho-slot{background:rgba(255,255,255,.07);border:1.5px dashed rgba(255,255,255,.2);border-radius:10px;padding:11px 14px;margin-bottom:10px;}
+.nicho-slot label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7dd6e8;margin-bottom:5px;font-weight:700;}
+.nicho-slot input{background:transparent;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:#fff;width:100%;font-weight:700;}
+.nicho-slot input::placeholder{color:rgba(255,255,255,.3);font-weight:400;}
+.nicho-preview{margin-top:14px;padding:13px;background:rgba(42,127,143,.2);border:1px solid rgba(42,127,143,.4);border-radius:10px;font-size:13px;color:rgba(255,255,255,.85);line-height:1.7;font-style:italic;}
+
+/* VAL TABLE */
+.val-table{width:100%;border-collapse:collapse;margin-top:10px;}
+.val-table th{background:var(--text);color:#fff;padding:9px 12px;font-size:11px;text-align:left;font-weight:700;}
+.val-table th:first-child{border-radius:8px 0 0 0;}
+.val-table th:last-child{border-radius:0 8px 0 0;}
+.val-table td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;}
+.val-table tr:last-child td{border-bottom:none;}
+.val-table tr:nth-child(even) td{background:#fafafa;}
+.val-table select{font-size:12px;padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:#fff;font-family:'DM Sans',sans-serif;width:100%;}
+.vbadge{display:inline-block;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700;}
+.vb-ok{background:rgba(42,122,80,.15);color:var(--green);}
+.vb-risk{background:var(--amber-l);color:var(--amber);}
+.vb-no{background:rgba(180,40,60,.12);color:#a03040;}
+
+.btn-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+.btn{padding:13px 26px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-back{background:#fff;border:1.5px solid var(--border);color:var(--muted);}
+.btn-back:hover{border-color:var(--slate);}
+.btn-fwd{flex:1;justify-content:center;background:linear-gradient(135deg,var(--teal),#3ab0c5);color:#fff;box-shadow:0 4px 16px rgba(42,127,143,.3);}
+.btn-fwd:hover{transform:translateY(-1px);}
+.btn-done{flex:1;justify-content:center;background:linear-gradient(135deg,var(--green),#3a9a60);color:#fff;box-shadow:0 4px 16px rgba(42,122,80,.3);}
+.btn-done:hover{transform:translateY(-1px);}
+.welcome,.report-panel{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:44px 32px;box-shadow:var(--shadow);}
+.welcome{text-align:center;}
+.big-icon{font-size:60px;display:block;margin-bottom:18px;}
+.welcome h2{font-family:'Playfair Display',serif;font-size:28px;color:var(--text);margin-bottom:12px;}
+.welcome p{color:var(--muted);font-size:14px;margin-bottom:14px;max-width:460px;margin-left:auto;margin-right:auto;}
+.pill-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:18px 0;}
+.pill{background:var(--teal-p);border:1px solid var(--teal-b);border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;}
+.report-panel{display:none;margin-top:0;}
+.report-panel.active{display:block;}
+.report-header{text-align:center;margin-bottom:22px;}
+.report-header h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:8px;}
+.report-header p{color:var(--muted);font-size:13px;line-height:1.6;}
+.report-box{background:#fafafa;border:1.5px solid var(--border);border-radius:12px;padding:20px;font-size:13px;line-height:1.9;white-space:pre-wrap;font-family:'DM Sans',sans-serif;color:var(--text);max-height:520px;overflow-y:auto;}
+.report-loading{text-align:center;padding:40px;color:var(--muted);}
+.spinner{display:inline-block;width:36px;height:36px;border:3px solid var(--teal-l);border-top-color:var(--teal);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.report-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;}
+.btn-copy{flex:1;padding:13px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--teal),#3ab0c5);color:#fff;border:none;transition:all .2s;}
+.btn-copy:hover{transform:translateY(-1px);}
+.btn-print{flex:1;padding:13px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:var(--green);color:#fff;border:none;transition:all .2s;}
+.btn-print:hover{transform:translateY(-1px);}
+.btn-restart{padding:13px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:var(--muted);border:1.5px solid var(--border);}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;}
+.toast.show{opacity:1;}
+@media print{.header,.prog,.btn-row,.report-actions,.welcome{display:none!important;}.report-panel{display:block!important;box-shadow:none;border:none;padding:0;}.report-box{max-height:none;border:none;background:#fff;}body{background:#fff;}}
+@media(max-width:480px){.main{padding:18px 10px 60px;}.card,.welcome,.report-panel{padding:20px 14px;}.btn-row,.report-actions{flex-direction:column;}.btn-back,.btn-fwd,.btn-done,.btn-copy,.btn-print{width:100%;justify-content:center;}.scale-row{flex-wrap:wrap;}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="hdr-inner">
+    <div class="badge">🎯 Kit de Transformação do Conhecimento</div>
+    <h1>Recorte de <em>Nicho</em></h1>
+    <p>Da expertise ampla ao foco preciso. Descubra para quem, sobre o quê e com qual diferencial único você vai ensinar.</p>
+  </div>
+</header>
+<div class="prog" id="prog">
+  <div class="prog-inner">
+    <div class="prog-top"><span id="stepLbl">Fase 1 de 5</span><span id="pctLbl">0%</span></div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="phase-dots" id="phaseDots"></div>
+  </div>
+</div>
+<main class="main">
+  <!-- WELCOME -->
+  <div class="welcome" id="welcomeCard">
+    <span class="big-icon">🔭</span>
+    <h2>Defina seu nicho com precisão cirúrgica</h2>
+    <p>A armadilha mais comum entre especialistas é querer ensinar tudo a todos. O microlearning exige o caminho contrário: quanto mais específico o nicho, mais relevante e poderoso o aprendizado.</p>
+    <div class="pill-row"><div class="pill">⏱ 15–25 minutos</div><div class="pill">🧭 5 fases</div><div class="pill">📄 Declaração de Nicho gerada ao final</div></div>
+    <p style="font-size:13px;">Ao final, sua <strong>Declaração de Nicho</strong> será gerada automaticamente — pronta para copiar ou imprimir.</p>
+    <button class="btn btn-fwd" onclick="startTool()" style="margin-top:20px;padding:15px 42px;">🚀 Iniciar meu Recorte de Nicho</button>
+  </div>
+  <!-- FASE 1 -->
+  <div class="card" id="s1">
+    <div class="c-phase">Fase 1 de 5 — Mapeamento</div>
+    <div class="c-title">O que você sabe fazer de verdade?</div>
+    <div class="c-sub">Antes de escolher o nicho, precisamos ter clareza sobre o seu arsenal de conhecimentos.</div>
+    <div class="callout teal"><strong>💡 Por que começar aqui?</strong>O nicho ideal nasce na interseção entre o que você domina profundamente, o que o mercado necessita e o que você genuinamente ama ensinar.</div>
+    <div class="field"><label>Quais são suas principais competências ou áreas de conhecimento?</label><div class="hint">Digite cada competência e pressione Enter para adicionar.</div>
+      <div class="tag-wrap" id="comp_wrap" onclick="document.getElementById('comp_inp').focus()">
+        <input class="tag-inp" id="comp_inp" placeholder="Ex: Liderança de equipes..." onkeydown="addTag(event,'comp_wrap','comp_val')">
+      </div><input type="hidden" id="comp_val">
+    </div>
+    <div class="field"><label>Qual dessas competências você domina com mais profundidade e raridade?</label><div class="hint">Aquela que poucos profissionais da sua área possuem no mesmo nível.</div><input type="text" id="comp_rara" placeholder="Ex: Implementação de OKRs em empresas familiares em crescimento"></div>
+    <div class="field"><label>Qual dessas competências você mais gosta de exercer — e ensinaria de graça?</label><input type="text" id="comp_ama" placeholder="Ex: Mentoria de novos líderes em sua primeira gestão"></div>
+    <div class="field"><label>Qual é o problema concreto que você resolve — e que as pessoas pagam para resolver?</label><textarea id="problema" placeholder="Ex: Ajudo gestores de primeira viagem a evitar os erros clássicos dos primeiros 90 dias no cargo..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-fwd" onclick="goTo(2)">Avançar →</button></div>
+  </div>
+  <!-- FASE 2 -->
+  <div class="card" id="s2">
+    <div class="c-phase">Fase 2 de 5 — Público</div>
+    <div class="c-title">Para quem, especificamente?</div>
+    <div class="c-sub">Nicho não é só assunto — é a combinação de assunto + pessoa certa.</div>
+    <div class="callout amber"><strong>⚠️ O erro mais comum: o público genérico</strong>"Profissionais de RH" não é um público — são milhões de pessoas. "Analistas de RH de médias empresas que querem migrar para Business Partner" — isso é um público.</div>
+    <div class="field"><label>Quem é o seu aluno ideal? Descreva com o máximo de detalhe.</label><div class="hint">Cargo, setor, momento de carreira, nível de experiência, contexto de vida...</div><textarea id="aluno" placeholder="Ex: Gerente de operações com 8–15 anos de experiência, em empresas de médio porte, que assumiu um papel de liderança sênior mas nunca teve formação formal em gestão estratégica..."></textarea></div>
+    <div class="field"><label>Qual é a dor ou frustração central que esse aluno carrega?</label><textarea id="dor" placeholder="Ex: Sente que está sempre apagando incêndios e nunca tem tempo para pensar estrategicamente..."></textarea></div>
+    <div class="field"><label>Qual é a transformação que esse aluno deseja conquistar?</label><div class="hint">O "antes" e o "depois". Venda o destino, não a jornada.</div><textarea id="transformacao" placeholder="Ex: Quer ser reconhecido como líder estratégico e liderar com confiança sem precisar controlar cada detalhe..."></textarea></div>
+    <div class="field"><label>Quão familiarizado esse público está com o tema que você vai ensinar?</label>
+      <div class="scale-row" id="fam_scale">
+        <button class="scale-btn" onclick="setScale('fam_scale','fam_val',this,'1')">1</button>
+        <button class="scale-btn" onclick="setScale('fam_scale','fam_val',this,'2')">2</button>
+        <button class="scale-btn" onclick="setScale('fam_scale','fam_val',this,'3')">3</button>
+        <button class="scale-btn" onclick="setScale('fam_scale','fam_val',this,'4')">4</button>
+        <button class="scale-btn" onclick="setScale('fam_scale','fam_val',this,'5')">5</button>
+      </div>
+      <div class="scale-labels"><span>Iniciante</span><span>Avançado</span></div>
+      <input type="hidden" id="fam_val">
+    </div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(1)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(3)">Avançar →</button></div>
+  </div>
+  <!-- FASE 3 -->
+  <div class="card" id="s3">
+    <div class="c-phase">Fase 3 de 5 — Interseção</div>
+    <div class="c-title">Onde tudo se encontra</div>
+    <div class="c-sub">O nicho poderoso existe onde três forças se cruzam: o que você domina, o que o mercado paga e o que você ama.</div>
+    <div class="field"><label>O que o mercado já está buscando nessa área?</label><div class="hint">Tendências, dores recorrentes, perguntas que você ouve sempre.</div><textarea id="demanda" placeholder="Ex: Empresas buscam cada vez mais líderes que saibam navegar mudanças rápidas. Profissionais de gestão intermediária são os mais carentes de formação prática..."></textarea></div>
+    <div class="field"><label>Quais são os seus diferenciais únicos em relação a outros possíveis professores desse tema?</label><textarea id="diferencial" placeholder="Ex: Fui do chão de fábrica à diretoria em 20 anos. Não ensino teoria — ensino o que aprendi fazendo, com os erros que cometi e os que evitei..."></textarea></div>
+    <div class="field"><label>Quanto essa área te energiza? Você consegue falar sobre ela por horas sem cansar?</label>
+      <div class="scale-row" id="energia_scale">
+        <button class="scale-btn" onclick="setScale('energia_scale','energia_val',this,'1')">1</button>
+        <button class="scale-btn" onclick="setScale('energia_scale','energia_val',this,'2')">2</button>
+        <button class="scale-btn" onclick="setScale('energia_scale','energia_val',this,'3')">3</button>
+        <button class="scale-btn" onclick="setScale('energia_scale','energia_val',this,'4')">4</button>
+        <button class="scale-btn" onclick="setScale('energia_scale','energia_val',this,'5')">5</button>
+      </div>
+      <div class="scale-labels"><span>Pouco</span><span>Muito</span></div>
+      <input type="hidden" id="energia_val">
+    </div>
+    <div class="field"><label>Você consegue nomear pelo menos 3 pessoas reais que pagariam por esse conhecimento agora?</label><textarea id="provas" placeholder="Ex: Tenho 3 ex-colegas que me pedem esse tipo de orientação regularmente. Já dei esse conselho para mais de 20 profissionais informalmente..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(2)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(4)">Avançar →</button></div>
+  </div>
+  <!-- FASE 4 -->
+  <div class="card" id="s4">
+    <div class="c-phase">Fase 4 de 5 — Declaração</div>
+    <div class="c-title">Construindo sua Declaração de Nicho</div>
+    <div class="c-sub">Uma Declaração de Nicho eficaz responde três perguntas em uma frase: Quem? O quê? Para qual resultado?</div>
+    <div class="callout teal"><strong>📐 A fórmula</strong>"Eu ajudo [QUEM] a [FAZER O QUÊ] para que [RESULTADO CONCRETO]."<br><br><em>Exemplo: "Eu ajudo gerentes de primeira viagem a estruturar sua autoridade como líderes nos primeiros 90 dias, para que conquistem credibilidade sem precisar microgerenciar."</em></div>
+    <div class="nicho-builder">
+      <h4>🧩 Monte sua declaração</h4>
+      <div class="nicho-slot"><label>QUEM é seu aluno ideal</label><input type="text" id="nd_quem" placeholder="Ex: gerentes de primeira viagem..." oninput="updatePreview()"></div>
+      <div class="nicho-slot"><label>O QUÊ você ensina / ajuda a fazer</label><input type="text" id="nd_oque" placeholder="Ex: estruturar sua autoridade como líderes..." oninput="updatePreview()"></div>
+      <div class="nicho-slot"><label>PARA QUÊ — o resultado concreto</label><input type="text" id="nd_para" placeholder="Ex: conquistarem credibilidade sem precisar microgerenciar..." oninput="updatePreview()"></div>
+      <div class="nicho-preview" id="nichoPreview">✍️ <em>Sua declaração aparecerá aqui conforme você preenche os campos acima...</em></div>
+    </div>
+    <div class="field"><label>Como você nomearia seu nicho em até 5 palavras? (Seu "tema de autoridade")</label><input type="text" id="tema_autoridade" placeholder="Ex: Liderança Prática para Novos Gestores"></div>
+    <div class="field"><label>Que formatos de minicurso fazem mais sentido para esse nicho?</label>
+      <div class="check-grp">
+        <label class="c-item"><input type="checkbox" value="Videoaulas curtas (3–8 min)"> Videoaulas curtas (3–8 min)</label>
+        <label class="c-item"><input type="checkbox" value="Voz + Slides"> Voz + Slides</label>
+        <label class="c-item"><input type="checkbox" value="Áudios / Podcast"> Áudios / Podcast</label>
+        <label class="c-item"><input type="checkbox" value="Textos e guias práticos"> Textos e guias práticos</label>
+        <label class="c-item"><input type="checkbox" value="Checklists e PDFs"> Checklists e PDFs</label>
+        <label class="c-item"><input type="checkbox" value="Formato misto"> Formato misto</label>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(3)">← Voltar</button><button class="btn btn-fwd" onclick="goTo(5)">Avançar →</button></div>
+  </div>
+  <!-- FASE 5 -->
+  <div class="card" id="s5">
+    <div class="c-phase">Fase 5 de 5 — Validação</div>
+    <div class="c-title">Teste de realidade do seu nicho</div>
+    <div class="c-sub">Antes de começar a produzir, vamos passar seu nicho pelos filtros que separam projetos que decolam dos que ficam no papel.</div>
+    <div class="field"><label>Responda honestamente cada critério abaixo:</label>
+      <table class="val-table">
+        <thead><tr><th style="width:55%">Critério</th><th style="width:25%">Resposta</th><th style="width:20%">Resultado</th></tr></thead>
+        <tbody id="valBody"></tbody>
+      </table>
+    </div>
+    <div class="field" style="margin-top:20px"><label>Qual é o seu próximo passo concreto para validar esse nicho com pessoas reais?</label><textarea id="prox_passo" placeholder="Ex: Vou entrar em contato com 3 ex-colegas e fazer perguntas abertas sobre suas dores..."></textarea></div>
+    <div class="field"><label>Há alguma preocupação ou dúvida que ainda te impede de comprometer-se com esse nicho?</label><textarea id="duvidas" placeholder="Ex: Tenho receio de que o mercado seja pequeno demais..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-back" onclick="goTo(4)">← Voltar</button><button class="btn btn-done" onclick="generateReport()">✅ Gerar minha Declaração de Nicho</button></div>
+  </div>
+  <!-- REPORT -->
+  <div class="report-panel" id="reportPanel">
+    <div class="report-header">
+      <span style="font-size:52px;display:block;margin-bottom:14px;">🎯</span>
+      <h2>Sua Declaração de Nicho está pronta!</h2>
+      <p>Use <strong>📋 Copiar</strong> para colar no Word ou Google Docs.<br>Use <strong>🖨️ Imprimir</strong> e escolha "Salvar como PDF" na impressora do seu navegador.</p>
+    </div>
+    <div class="report-box" id="reportBox"><div class="report-loading"><div class="spinner"></div><br>Gerando sua Declaração de Nicho...</div></div>
+    <div class="report-actions">
+      <button class="btn-copy" onclick="copyReport()">📋 Copiar</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      <button class="btn-restart" onclick="restartTool()">↩ Recomeçar</button>
+    </div>
+  </div>
+</main>
+<div class="toast" id="toast">✅ Copiado!</div>
+<script>
+const TOTAL=5,phases=['Mapeamento','Público','Interseção','Declaração','Validação'];
+let cur=0;
+const criteria=[
+  {q:'Você tem pelo menos 3 anos de experiência prática nesse tema?',ok:'Credibilidade estabelecida',risk:'Reforce sua autoridade',no:'Risco de falta de profundidade'},
+  {q:'Você consegue nomear 10+ pessoas que pagariam por esse conhecimento?',ok:'Mercado validado',risk:'Mercado pequeno — cuidado',no:'Repensar o público-alvo'},
+  {q:'Existem outros cursos sobre esse tema? (concorrência = validação de mercado)',ok:'Mercado ativo',risk:'Mercado nascente',no:'Pode ser cedo demais'},
+  {q:'Você consegue criar pelo menos 5 módulos distintos sobre esse tema?',ok:'Conteúdo robusto',risk:'Pode precisar expandir',no:'Tema muito estreito'},
+  {q:'Esse tema mantém relevância por pelo menos 2 anos?',ok:'Perenidade garantida',risk:'Acompanhe tendências',no:'Risco de obsolescência'},
+  {q:'Você se sente confortável aparecendo como referência pública nesse tema?',ok:'Posicionamento viável',risk:'Trabalhe a confiança',no:'Bloqueio interno a resolver'},
+];
+let valAnswers={};
+
+function startTool(){
+  document.getElementById('welcomeCard').style.display='none';
+  document.getElementById('prog').style.display='block';
+  buildDots();buildValTable();goTo(1);
+}
+function buildDots(){
+  const row=document.getElementById('phaseDots');row.innerHTML='';
+  phases.forEach((_,i)=>{const d=document.createElement('div');d.className='pdot';d.id=`pd${i}`;row.appendChild(d);});
+}
+function buildValTable(){
+  const body=document.getElementById('valBody');body.innerHTML='';
+  criteria.forEach((c,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-size:12px">${c.q}</td>
+    <td><select onchange="setVal(${i},this.value)" style="font-size:12px;padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:#fff;font-family:'DM Sans',sans-serif;width:100%">
+      <option value="">— selecione</option>
+      <option value="ok">✅ Sim</option>
+      <option value="risk">⚠️ Parcialmente</option>
+      <option value="no">❌ Não</option>
+    </select></td>
+    <td id="vr${i}" style="font-size:11px;color:var(--muted);font-style:italic">—</td>`;
+    body.appendChild(tr);
+  });
+}
+function setVal(i,v){
+  valAnswers[i]=v;
+  const c=criteria[i],cell=document.getElementById(`vr${i}`);
+  if(v==='ok')cell.innerHTML=`<span class="vbadge vb-ok">${c.ok}</span>`;
+  else if(v==='risk')cell.innerHTML=`<span class="vbadge vb-risk">${c.risk}</span>`;
+  else if(v==='no')cell.innerHTML=`<span class="vbadge vb-no">${c.no}</span>`;
+  else cell.textContent='—';
+}
+function goTo(n){
+  for(let i=1;i<=TOTAL;i++){const el=document.getElementById(`s${i}`);if(el)el.classList.remove('active');}
+  document.getElementById('reportPanel').classList.remove('active');
+  cur=n;const card=document.getElementById(`s${n}`);
+  if(card){card.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  updateProg();
+}
+function updateProg(){
+  const pct=Math.round(((cur-1)/TOTAL)*100);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('pctLbl').textContent=pct+'%';
+  document.getElementById('stepLbl').textContent=`Fase ${cur} de ${TOTAL}`;
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById(`pd${i}`);if(!el)return;el.className='pdot';if(i<cur-1)el.classList.add('done');else if(i===cur-1)el.classList.add('active');}
+}
+function addTag(e,wrapId,hiddenId){
+  if(e.key!=='Enter'&&e.key!==',')return;e.preventDefault();
+  const inp=e.target,val=inp.value.replace(',','').trim();if(!val)return;
+  const wrap=document.getElementById(wrapId);
+  const tag=document.createElement('div');tag.className='tag';
+  tag.innerHTML=`<span>${val}</span><span class="tag-x" onclick="this.parentElement.remove();syncTags('${wrapId}','${hiddenId}')">×</span>`;
+  wrap.insertBefore(tag,inp);inp.value='';syncTags(wrapId,hiddenId);
+}
+function syncTags(wrapId,hiddenId){
+  const vals=[...document.getElementById(wrapId).querySelectorAll('.tag span:first-child')].map(t=>t.textContent);
+  document.getElementById(hiddenId).value=vals.join(', ');
+}
+function setScale(groupId,hiddenId,btn,val){
+  document.querySelectorAll(`#${groupId} .scale-btn`).forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');document.getElementById(hiddenId).value=val;
+}
+function updatePreview(){
+  const q=document.getElementById('nd_quem').value.trim();
+  const o=document.getElementById('nd_oque').value.trim();
+  const p=document.getElementById('nd_para').value.trim();
+  const prev=document.getElementById('nichoPreview');
+  if(!q&&!o&&!p){prev.innerHTML='✍️ <em>Sua declaração aparecerá aqui conforme você preenche os campos acima...</em>';return;}
+  prev.innerHTML=`💬 <strong>Eu ajudo ${q||'[SEU ALUNO IDEAL]'} a ${o||'[O QUE VOCÊ ENSINA]'}, para que ${p||'[O RESULTADO CONCRETO]'}.</strong>`;
+}
+document.addEventListener('change',function(e){
+  if(e.target.type==='checkbox'){e.target.closest('.c-item').classList.toggle('sel',e.target.checked);}
+});
+function g(id){const el=document.getElementById(id);return el&&el.value.trim()?el.value.trim():'Não informado';}
+function gc(sel){const els=[...document.querySelectorAll(`${sel} input:checked`)];return els.length?els.map(e=>{const l=e.closest('.c-item');return l?l.textContent.trim():e.value;}).join(', '):'Não informado';}
+function getValSummary(){
+  const map={ok:'Sim',risk:'Parcialmente',no:'Não'};
+  return criteria.map((c,i)=>`${c.q} → ${map[valAnswers[i]]||'Não respondido'}`).join('\n');
+}
+function getScore(){
+  let pts=0;Object.values(valAnswers).forEach(v=>{if(v==='ok')pts+=100/criteria.length;else if(v==='risk')pts+=50/criteria.length;});
+  return Math.round(pts);
+}
+
+async function generateReport(){
+  for(let i=1;i<=TOTAL;i++){const el=document.getElementById(`s${i}`);if(el)el.classList.remove('active');}
+  document.getElementById('progFill').style.width='100%';document.getElementById('pctLbl').textContent='100%';
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById(`pd${i}`);if(el)el.className='pdot done';}
+  document.getElementById('reportPanel').classList.add('active');
+  document.getElementById('reportBox').innerHTML='<div class="report-loading"><div class="spinner"></div><br>Gerando sua Declaração de Nicho com IA...</div>';
+  window.scrollTo({top:0,behavior:'smooth'});
+  const d={comp:g('comp_val'),rara:g('comp_rara'),ama:g('comp_ama'),prob:g('problema'),aluno:g('aluno'),dor:g('dor'),transf:g('transformacao'),fam:g('fam_val'),dem:g('demanda'),dif:g('diferencial'),energia:g('energia_val'),provas:g('provas'),quem:g('nd_quem'),oque:g('nd_oque'),para:g('nd_para'),tema:g('tema_autoridade'),form:gc('#s4 .check-grp'),passo:g('prox_passo'),duvidas:g('duvidas'),score:getScore(),val:getValSummary()};
+  const decl=d.quem!=='Não informado'?`"Eu ajudo ${d.quem} a ${d.oque}, para que ${d.para}."`:'(a ser construída)';
+  const prompt=`Você é especialista em posicionamento de especialistas e educação online. Crie um RELATÓRIO DE RECORTE DE NICHO completo e estratégico, interpretando os dados abaixo com profundidade.
+
+DADOS DO ESPECIALISTA:
+Competências: ${d.comp}
+Competência mais rara: ${d.rara}
+Competência que mais ama: ${d.ama}
+Problema que resolve: ${d.prob}
+Aluno ideal: ${d.aluno}
+Dor central do aluno: ${d.dor}
+Transformação desejada: ${d.transf}
+Familiaridade do público com o tema: ${d.fam}/5
+Demanda de mercado identificada: ${d.dem}
+Diferenciais únicos: ${d.dif}
+Nível de energia pelo tema: ${d.energia}/5
+Provas de mercado: ${d.provas}
+Declaração de Nicho construída: ${decl}
+Tema de autoridade: ${d.tema}
+Formatos preferidos: ${d.form}
+Próximo passo de validação: ${d.passo}
+Dúvidas e preocupações: ${d.duvidas}
+Pontuação de viabilidade: ${d.score}/100
+Critérios de validação:
+${d.val}
+
+FORMATO DO RELATÓRIO (texto puro, sem markdown):
+════════════════════════════════
+RECORTE DE NICHO — DECLARAÇÃO DE POSICIONAMENTO
+Data: ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}
+════════════════════════════════
+
+DECLARAÇÃO DE NICHO
+${decl}
+
+TEMA DE AUTORIDADE: ${d.tema||'(a definir)'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANÁLISE DO POSICIONAMENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Análise estratégica do nicho: pontos fortes, oportunidades, riscos identificados. Seja específico e valorize o que é único neste especialista.]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PERFIL DO ALUNO IDEAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Interprete e enriqueça a descrição do aluno ideal, articulando a dor com a transformação prometida]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DIFERENCIAL COMPETITIVO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Articule por que este especialista tem credibilidade única para ensinar esse tema]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VIABILIDADE DO NICHO: ${d.score}/100
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Interprete o score e os critérios de validação. O que está forte? O que precisa de atenção?]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRÓXIMOS PASSOS RECOMENDADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. [Ação concreta e específica]
+2. [Ação concreta e específica]
+3. [Ação concreta e específica]
+
+════════════════════════════════
+Baseado no Modelo SECI — Nonaka & Takeuchi
+Kit de Transformação do Conhecimento
+════════════════════════════════`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content&&data.content[0]?data.content[0].text:null;
+    if(text){document.getElementById('reportBox').textContent=text;}else{showFallback(d,decl);}
+  }catch(e){showFallback(d,decl);}
+}
+function showFallback(d,decl){
+  document.getElementById('reportBox').textContent=`════════════════════════════════
+RECORTE DE NICHO — DECLARAÇÃO DE POSICIONAMENTO
+${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}
+════════════════════════════════
+
+DECLARAÇÃO DE NICHO
+${decl}
+
+TEMA DE AUTORIDADE: ${d.tema}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. MAPEAMENTO DE COMPETÊNCIAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Competências: ${d.comp}
+Competência mais rara: ${d.rara}
+Competência que mais amo: ${d.ama}
+Problema que resolvo: ${d.prob}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. PÚBLICO-ALVO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Aluno ideal: ${d.aluno}
+Dor central: ${d.dor}
+Transformação desejada: ${d.transf}
+Familiaridade com o tema: ${d.fam}/5
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. INTERSEÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Demanda de mercado: ${d.dem}
+Meu diferencial: ${d.dif}
+Energia pelo tema: ${d.energia}/5
+Provas de mercado: ${d.provas}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. FORMATOS PREFERIDOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${d.form}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. VALIDAÇÃO: ${d.score}/100 pontos
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${d.val}
+
+Próximo passo: ${d.passo}
+Dúvidas: ${d.duvidas}
+
+════════════════════════════════
+Baseado no Modelo SECI — Nonaka & Takeuchi
+Kit de Transformação do Conhecimento
+════════════════════════════════`;
+}
+function copyReport(){
+  const text=document.getElementById('reportBox').textContent;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(()=>showToast('✅ Copiado!')).catch(()=>selectAll());}else{selectAll();}
+}
+function selectAll(){
+  const box=document.getElementById('reportBox');const range=document.createRange();range.selectNodeContents(box);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  showToast('✅ Texto selecionado — pressione Ctrl+C para copiar');
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function restartTool(){document.getElementById('reportPanel').classList.remove('active');document.getElementById('prog').style.display='none';document.getElementById('welcomeCard').style.display='block';window.scrollTo({top:0,behavior:'smooth'});}
+</script>
+</body>
+</html>

@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identificador de Persona — Kit de Transformação do Conhecimento</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f4f1eb;
+  --card:     #ffffff;
+  --cream:    #faf8f3;
+  --text:     #1e1b16;
+  --text2:    #3d3a34;
+  --muted:    #9a9488;
+  --border:   #e0dbd0;
+  --border2:  #ccc7bb;
+
+  --violet:   #5c4fc3;
+  --violet-l: rgba(92,79,195,.10);
+  --violet-b: rgba(92,79,195,.28);
+
+  --rose:     #c04b6e;
+  --rose-l:   rgba(192,75,110,.10);
+  --rose-b:   rgba(192,75,110,.28);
+
+  --teal:     #2d9e8f;
+  --teal-l:   rgba(45,158,143,.10);
+  --teal-b:   rgba(45,158,143,.28);
+
+  --amber:    #c47c18;
+  --amber-l:  rgba(196,124,24,.10);
+  --amber-b:  rgba(196,124,24,.28);
+
+  --sage:     #4e8c5f;
+  --sage-l:   rgba(78,140,95,.10);
+  --sage-b:   rgba(78,140,95,.28);
+
+  --shadow:   0 2px 24px rgba(30,27,22,.07);
+  --shadow2:  0 8px 48px rgba(30,27,22,.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ── HEADER ─────────────────────────── */
+.header {
+  background: #1e1b16;
+  padding: 60px 24px 52px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 40%, rgba(92,79,195,.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 60%, rgba(192,75,110,.14) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--violet), var(--rose), var(--amber), var(--teal));
+}
+
+.hdr {
+  position: relative;
+  max-width: 700px; margin: 0 auto;
+}
+
+.hdr-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(255,255,255,.38);
+  border: 1px solid rgba(255,255,255,.12);
+  display: inline-block; padding: 5px 16px;
+  border-radius: 4px; margin-bottom: 20px;
+}
+
+.header h1 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(30px, 6vw, 52px);
+  font-weight: 400; line-height: 1.1;
+  color: #fff; margin-bottom: 14px;
+  letter-spacing: -.5px;
+}
+
+.header h1 em {
+  font-style: italic;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--rose);
+}
+
+.header p {
+  color: rgba(255,255,255,.48);
+  font-size: 15px; font-weight: 300;
+  font-style: italic;
+  max-width: 480px; margin: 0 auto;
+}
+
+/* ── PROGRESS ────────────────────────── */
+.prog {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  position: sticky; top: 0; z-index: 100;
+  display: none; box-shadow: var(--shadow);
+}
+
+.prog-inner { max-width: 720px; margin: 0 auto; }
+
+.prog-top {
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.prog-track { background: var(--border); height: 3px; border-radius: 2px; overflow: hidden; }
+.prog-fill  { height: 100%; background: linear-gradient(90deg, var(--violet), var(--rose)); transition: width .5s ease; border-radius: 2px; }
+
+.phase-strip { display: flex; gap: 4px; margin-top: 8px; }
+.ps-dot {
+  flex: 1; height: 3px; border-radius: 2px;
+  background: var(--border); transition: background .3s;
+}
+.ps-dot.done   { background: var(--teal); }
+.ps-dot.active { background: var(--violet); }
+
+/* ── MAIN ────────────────────────────── */
+.main { max-width: 720px; margin: 0 auto; padding: 36px 16px 100px; }
+
+/* ── CARD ────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 36px 32px;
+  margin-bottom: 20px;
+  display: none; box-shadow: var(--shadow);
+  animation: rise .35s ease;
+}
+.card.active { display: block; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.c-step {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--violet);
+  margin-bottom: 8px;
+}
+
+.c-title {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 24px; font-weight: 400;
+  color: var(--text); margin-bottom: 8px; line-height: 1.2;
+}
+
+.c-sub {
+  font-size: 14px; color: var(--muted);
+  margin-bottom: 24px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  font-style: italic;
+}
+
+/* ── CALLOUT ─────────────────────────── */
+.callout {
+  border-radius: 10px; padding: 14px 16px;
+  margin-bottom: 22px; font-size: 13.5px; line-height: 1.65;
+}
+.callout strong { display: block; margin-bottom: 4px; font-size: 11px; letter-spacing: .5px; font-family: 'DM Sans', sans-serif; }
+.callout.violet { background: var(--violet-l); border-left: 3px solid var(--violet); }
+.callout.violet strong { color: var(--violet); }
+.callout.rose   { background: var(--rose-l);   border-left: 3px solid var(--rose); }
+.callout.rose   strong { color: var(--rose); }
+.callout.teal   { background: var(--teal-l);   border-left: 3px solid var(--teal); }
+.callout.teal   strong { color: var(--teal); }
+.callout.amber  { background: var(--amber-l);  border-left: 3px solid var(--amber); }
+.callout.amber  strong { color: var(--amber); }
+.callout.sage   { background: var(--sage-l);   border-left: 3px solid var(--sage); }
+.callout.sage   strong { color: var(--sage); }
+
+/* ── FIELDS ──────────────────────────── */
+.field { margin-bottom: 22px; }
+.field label {
+  display: block; font-size: 13px; font-weight: 600;
+  color: var(--text); margin-bottom: 5px;
+}
+.field .hint { font-size: 12px; color: var(--muted); margin-bottom: 7px; font-style: italic; }
+.field input[type=text],
+.field input[type=number],
+.field textarea,
+.field select {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--text);
+  background: var(--cream); outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px var(--violet-l);
+  background: #fff;
+}
+.field input::placeholder,
+.field textarea::placeholder { color: #bbb8b0; font-style: italic; }
+.field textarea { resize: vertical; min-height: 86px; }
+
+/* ── RADIO GRID ──────────────────────── */
+.radio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.r-opt {
+  border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 13px 14px; cursor: pointer; transition: all .2s;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.r-opt:hover { border-color: var(--violet); background: var(--violet-l); }
+.r-opt.sel   { border-color: var(--violet); background: var(--violet-l); }
+.r-opt input { margin-top: 3px; accent-color: var(--violet); flex-shrink: 0; }
+.r-opt-txt strong { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.r-opt-txt span   { font-size: 12px; color: var(--muted); font-style: italic; }
+
+/* ── CHECK GRID ──────────────────────── */
+.check-grid { display: flex; flex-direction: column; gap: 8px; }
+.c-opt {
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 11px 14px; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13.5px; transition: all .2s;
+}
+.c-opt:hover { border-color: var(--rose); background: var(--rose-l); }
+.c-opt.sel   { border-color: var(--rose); background: var(--rose-l); }
+.c-opt input { accent-color: var(--rose); width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ── SCALE ───────────────────────────── */
+.scale-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: 6px;
+}
+.scale-btn {
+  flex: 1; min-width: 52px;
+  padding: 10px 6px; border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--cream); cursor: pointer;
+  text-align: center; transition: all .2s;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; color: var(--muted);
+}
+.scale-btn:hover { border-color: var(--teal); color: var(--teal); }
+.scale-btn.sel   { border-color: var(--teal); background: var(--teal-l); color: var(--teal); font-weight: 700; }
+.scale-labels {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--muted); margin-top: 4px;
+  font-style: italic;
+}
+
+/* ── AGE STRIP ───────────────────────── */
+.age-strip { display: flex; gap: 8px; flex-wrap: wrap; }
+.age-btn {
+  padding: 9px 18px; border: 1.5px solid var(--border);
+  border-radius: 8px; background: var(--cream);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--muted);
+  cursor: pointer; transition: all .2s;
+}
+.age-btn:hover { border-color: var(--violet); color: var(--violet); }
+.age-btn.sel   { border-color: var(--violet); background: var(--violet-l); color: var(--violet); font-weight: 700; }
+
+/* ── PERSONA PREVIEW ─────────────────── */
+.persona-preview {
+  background: #1e1b16; border-radius: 12px;
+  padding: 22px; margin-bottom: 22px; color: #fff;
+}
+.persona-preview h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,.38);
+  margin-bottom: 14px;
+}
+.pp-row {
+  display: flex; justify-content: space-between;
+  align-items: baseline; gap: 16px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.pp-row:last-child { border-bottom: none; }
+.pp-lbl { font-size: 11px; color: rgba(255,255,255,.42); flex-shrink: 0; }
+.pp-val { font-size: 13px; color: #fff; text-align: right; font-style: italic; }
+
+/* ── BUTTONS ─────────────────────────── */
+.btn-row { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+.btn {
+  padding: 13px 26px; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; border: none; transition: all .2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-back { background: var(--cream); border: 1.5px solid var(--border); color: var(--muted); }
+.btn-back:hover { border-color: var(--text2); color: var(--text); }
+.btn-fwd  {
+  flex: 1; justify-content: center;
+  background: var(--violet); color: #fff;
+  box-shadow: 0 4px 16px rgba(92,79,195,.3);
+}
+.btn-fwd:hover  { background: #4a3fb0; transform: translateY(-1px); }
+.btn-done {
+  flex: 1; justify-content: center;
+  background: var(--teal); color: #fff;
+  box-shadow: 0 4px 16px rgba(45,158,143,.3);
+}
+.btn-done:hover { background: #258075; transform: translateY(-1px); }
+
+/* ── WELCOME ─────────────────────────── */
+.welcome {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 52px 36px;
+  text-align: center; box-shadow: var(--shadow2);
+}
+.big-icon { font-size: 64px; display: block; margin-bottom: 20px; }
+.welcome h2 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 30px; font-weight: 400;
+  color: var(--text); margin-bottom: 12px; line-height: 1.2;
+}
+.welcome p {
+  color: var(--muted); font-size: 14px; font-style: italic;
+  margin-bottom: 14px; max-width: 480px;
+  margin-left: auto; margin-right: auto;
+}
+.pill-row {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; margin: 22px 0;
+}
+.pill {
+  background: var(--cream); border: 1px solid var(--border);
+  border-radius: 4px; padding: 7px 16px;
+  font-size: 12px; font-family: 'JetBrains Mono', monospace;
+  color: var(--text2);
+}
+
+/* ── REPORT ──────────────────────────── */
+.report-panel {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 36px 32px;
+  box-shadow: var(--shadow2); display: none;
+}
+.report-panel.active { display: block; }
+.report-header { text-align: center; margin-bottom: 24px; }
+.report-header h2 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 26px; font-weight: 400;
+  color: var(--text); margin-bottom: 8px;
+}
+.report-header p { color: var(--muted); font-size: 13px; font-style: italic; line-height: 1.6; }
+.report-box {
+  background: var(--cream); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 24px;
+  font-size: 13.5px; line-height: 2;
+  white-space: pre-wrap; font-family: 'DM Sans', sans-serif;
+  color: var(--text); max-height: 540px; overflow-y: auto;
+}
+.report-loading { text-align: center; padding: 48px; color: var(--muted); font-style: italic; }
+.spinner {
+  display: inline-block; width: 34px; height: 34px;
+  border: 3px solid var(--border); border-top-color: var(--violet);
+  border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.report-actions { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.btn-copy {
+  flex: 1; padding: 13px; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; background: var(--violet); color: #fff;
+  border: none; transition: all .2s;
+}
+.btn-copy:hover { background: #4a3fb0; transform: translateY(-1px); }
+.btn-print {
+  flex: 1; padding: 13px; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; background: var(--teal); color: #fff;
+  border: none; transition: all .2s;
+}
+.btn-print:hover { background: #258075; transform: translateY(-1px); }
+.btn-new {
+  padding: 13px 20px; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; background: var(--cream); color: var(--muted);
+  border: 1.5px solid var(--border); transition: all .2s;
+}
+.btn-new:hover { border-color: var(--violet); color: var(--violet); }
+
+/* ── TOAST ───────────────────────────── */
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--text); color: #fff;
+  padding: 10px 22px; border-radius: 4px;
+  font-size: 13px; font-family: 'JetBrains Mono', monospace;
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none; z-index: 9999;
+}
+.toast.show { opacity: 1; }
+
+/* ── PRINT ───────────────────────────── */
+@media print {
+  .header, .prog, .btn-row, .report-actions, .welcome { display: none !important; }
+  .report-panel { display: block !important; box-shadow: none; border: none; padding: 0; }
+  .report-box { max-height: none; border: none; background: #fff; }
+  body { background: #fff; }
+}
+
+/* ── MOBILE ──────────────────────────── */
+@media (max-width: 520px) {
+  .main { padding: 20px 10px 80px; }
+  .card, .welcome, .report-panel { padding: 22px 14px; }
+  .radio-grid { grid-template-columns: 1fr; }
+  .btn-row, .report-actions { flex-direction: column; }
+  .age-strip { gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="hdr">
+    <div class="hdr-eyebrow">👤 Kit de Transformação do Conhecimento</div>
+    <h1>Identificador<br>de <em>Persona</em></h1>
+    <p>Descubra com precisão quem é o aluno ideal do seu minicurso — suas dores, desejos, barreiras e o que o motiva a aprender.</p>
+  </div>
+</header>
+
+<div class="prog" id="prog">
+  <div class="prog-inner">
+    <div class="prog-top">
+      <span id="stepLbl">Etapa 1 de 6</span>
+      <span id="pctLbl">0%</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="phase-strip" id="phaseStrip"></div>
+  </div>
+</div>
+
+<main class="main">
+
+  <!-- WELCOME -->
+  <div class="welcome" id="welcomeCard">
+    <span class="big-icon">👤</span>
+    <h2>Quem é o seu aluno ideal?</h2>
+    <p>Um minicurso sem persona definida é um conteúdo sem destino. Esta ferramenta mapeia em profundidade quem é a pessoa que você quer alcançar — para que cada decisão do seu curso faça sentido para ela.</p>
+    <div class="pill-row">
+      <div class="pill">⏱ 15–20 minutos</div>
+      <div class="pill">👤 6 etapas</div>
+      <div class="pill">📄 Persona completa gerada</div>
+    </div>
+    <p style="font-size:13px;">Ao final, você recebe um documento com a descrição detalhada da sua persona — pronto para usar no Recorte de Nicho e no Estruturador de Minicurso.</p>
+    <button class="btn btn-fwd" onclick="startTool()" style="margin-top:22px;padding:16px 44px;">👤 Identificar minha persona</button>
+  </div>
+
+  <!-- ETAPA 1: PERFIL BÁSICO -->
+  <div class="card" id="s1">
+    <div class="c-step">Etapa 1 de 6 — Perfil Básico</div>
+    <div class="c-title">Quem é esta pessoa no mundo?</div>
+    <div class="c-sub">Comece pelo básico. Não precisa ser exato — escreva o perfil mais frequente de quem você imagina como seu aluno.</div>
+
+    <div class="callout violet">
+      <strong>💡 Por que isso importa</strong>
+      Quanto mais claro for o perfil de quem você está falando, mais fácil fica escolher palavras, exemplos e formatos que essa pessoa reconhece e valoriza. Um curso para qualquer pessoa não chega a ninguém.
+    </div>
+
+    <div class="field">
+      <label>Como você chamaria essa pessoa? (um nome fictício ajuda a concretizar)</label>
+      <div class="hint">Ex: Ricardo, Márcia, João. Um nome torna a persona real e fácil de lembrar.</div>
+      <input type="text" id="p_nome" placeholder="Ex: Marcos">
+    </div>
+
+    <div class="field">
+      <label>Qual é a faixa etária mais comum dessa pessoa?</label>
+      <div class="age-strip" id="ageStrip">
+        <button class="age-btn" onclick="selAge(this,'20–30 anos')">20–30</button>
+        <button class="age-btn" onclick="selAge(this,'30–40 anos')">30–40</button>
+        <button class="age-btn" onclick="selAge(this,'40–50 anos')">40–50</button>
+        <button class="age-btn" onclick="selAge(this,'50–60 anos')">50–60</button>
+        <button class="age-btn" onclick="selAge(this,'60+ anos')">60+</button>
+        <button class="age-btn" onclick="selAge(this,'Variada')">Variada</button>
+      </div>
+      <input type="hidden" id="p_idade">
+    </div>
+
+    <div class="field">
+      <label>Qual é o perfil profissional predominante?</label>
+      <div class="hint">Cargo, área, setor, tipo de ocupação.</div>
+      <input type="text" id="p_profissao" placeholder="Ex: Gerente de médias empresas, área industrial, com 15+ anos de carreira">
+    </div>
+
+    <div class="field">
+      <label>Qual é o nível de escolaridade mais comum?</label>
+      <div class="radio-grid">
+        <label class="r-opt" onclick="selR(this,'esc','Ensino médio completo')">
+          <input type="radio" name="esc">
+          <div class="r-opt-txt"><strong>Ensino médio</strong><span>Formação básica</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'esc','Ensino superior completo')">
+          <input type="radio" name="esc">
+          <div class="r-opt-txt"><strong>Superior completo</strong><span>Graduação concluída</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'esc','Pós-graduação ou MBA')">
+          <input type="radio" name="esc">
+          <div class="r-opt-txt"><strong>Pós-graduação / MBA</strong><span>Especialização ou mestrado</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'esc','Variado / não determinante')">
+          <input type="radio" name="esc">
+          <div class="r-opt-txt"><strong>Variado</strong><span>Não é um fator definidor</span></div>
+        </label>
+      </div>
+      <input type="hidden" id="p_esc">
+    </div>
+
+    <div class="field">
+      <label>Como esta pessoa se descreve no contexto profissional?</label>
+      <div class="hint">Em uma frase, como ela se apresenta — o que ela diria de si mesma numa reunião ou num LinkedIn?</div>
+      <input type="text" id="p_autodesc" placeholder="Ex: Profissional com 20 anos de experiência em logística, buscando uma nova fase na carreira">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-fwd" onclick="goTo(2)">Avançar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 2: CONTEXTO E SITUAÇÃO -->
+  <div class="card" id="s2">
+    <div class="c-step">Etapa 2 de 6 — Contexto e Situação</div>
+    <div class="c-title">Em que momento da vida ela está?</div>
+    <div class="c-sub">O momento de vida define o nível de urgência, disponibilidade e abertura para aprender algo novo.</div>
+
+    <div class="callout rose">
+      <strong>🎯 O contexto muda tudo</strong>
+      A mesma pessoa em momentos diferentes tem necessidades completamente distintas. Uma pessoa em crise quer soluções rápidas. Uma pessoa em crescimento quer aprofundamento. Entender o momento define o tom e o ritmo do seu curso.
+    </div>
+
+    <div class="field">
+      <label>Qual é a situação de vida mais comum dessa persona?</label>
+      <div class="radio-grid">
+        <label class="r-opt" onclick="selR(this,'sit','Em transição de carreira ou recolocação')">
+          <input type="radio" name="sit">
+          <div class="r-opt-txt"><strong>Em transição</strong><span>Mudando de área ou empresa</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'sit','Empregado mas buscando crescimento')">
+          <input type="radio" name="sit">
+          <div class="r-opt-txt"><strong>Empregado em crescimento</strong><span>Quer evoluir na carreira atual</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'sit','Autônomo ou empreendedor')">
+          <input type="radio" name="sit">
+          <div class="r-opt-txt"><strong>Autônomo / empreendedor</strong><span>Trabalha por conta própria</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'sit','Recém-formado ou início de carreira')">
+          <input type="radio" name="sit">
+          <div class="r-opt-txt"><strong>Início de carreira</strong><span>Pouca experiência formal</span></div>
+        </label>
+      </div>
+      <input type="hidden" id="p_sit">
+    </div>
+
+    <div class="field">
+      <label>Quanta disponibilidade de tempo ela tem para aprender?</label>
+      <div class="radio-grid">
+        <label class="r-opt" onclick="selR(this,'tempo','Muito pouco — menos de 1h por semana')">
+          <input type="radio" name="tempo">
+          <div class="r-opt-txt"><strong>Muito pouco</strong><span>Menos de 1h por semana</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'tempo','Pouco — 1 a 3h por semana')">
+          <input type="radio" name="tempo">
+          <div class="r-opt-txt"><strong>Pouco</strong><span>1 a 3h por semana</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'tempo','Moderado — 3 a 6h por semana')">
+          <input type="radio" name="tempo">
+          <div class="r-opt-txt"><strong>Moderado</strong><span>3 a 6h por semana</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'tempo','Bastante — mais de 6h por semana')">
+          <input type="radio" name="tempo">
+          <div class="r-opt-txt"><strong>Bastante</strong><span>Mais de 6h por semana</span></div>
+        </label>
+      </div>
+      <input type="hidden" id="p_tempo">
+    </div>
+
+    <div class="field">
+      <label>Como ela prefere consumir conteúdo educacional?</label>
+      <div class="check-grid" id="formatos_grid">
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Vídeo-aulas curtas (até 10 minutos)"> Vídeo-aulas curtas (até 10 minutos)</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Áudio e podcasts — aprende ouvindo"> Áudio e podcasts — aprende ouvindo</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Textos e PDFs para ler no próprio ritmo"> Textos e PDFs para ler no próprio ritmo</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Aulas ao vivo com interação"> Aulas ao vivo com interação</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Exercícios práticos e atividades"> Exercícios práticos e atividades</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Qual é o nível de familiaridade com tecnologia e cursos online?</label>
+      <div class="scale-row" id="techScale">
+        <button class="scale-btn" onclick="selScale(this,'techScale','p_tech','1')">1</button>
+        <button class="scale-btn" onclick="selScale(this,'techScale','p_tech','2')">2</button>
+        <button class="scale-btn" onclick="selScale(this,'techScale','p_tech','3')">3</button>
+        <button class="scale-btn" onclick="selScale(this,'techScale','p_tech','4')">4</button>
+        <button class="scale-btn" onclick="selScale(this,'techScale','p_tech','5')">5</button>
+      </div>
+      <div class="scale-labels"><span>Nunca fez um curso online</span><span>Consome cursos regularmente</span></div>
+      <input type="hidden" id="p_tech">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(1)">← Voltar</button>
+      <button class="btn btn-fwd" onclick="goTo(3)">Avançar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 3: DORES E FRUSTRAÇÕES -->
+  <div class="card" id="s3">
+    <div class="c-step">Etapa 3 de 6 — Dores e Frustrações</div>
+    <div class="c-title">O que tira o sono desta pessoa?</div>
+    <div class="c-sub">As dores são o combustível do aprendizado. Quem não sente dor não busca solução. Entender as frustrações da persona é entender por que ela compraria seu curso.</div>
+
+    <div class="callout amber">
+      <strong>⚠️ Fale sobre a dor antes de falar sobre a solução</strong>
+      Cursos que vendem bem não começam descrevendo o conteúdo — começam nomeando a dor com tanta precisão que o aluno sente que foi escrito para ele. Essa etapa é o coração da sua mensagem.
+    </div>
+
+    <div class="field">
+      <label>Qual é a maior dor ou frustração profissional desta persona?</label>
+      <div class="hint">O problema central que ela enfrenta na área em que você vai ensinar.</div>
+      <textarea id="p_dor_principal" placeholder="Ex: Sabe que tem experiência valiosa mas não consegue se posicionar como especialista. Perde oportunidades para profissionais mais jovens que sabem se comunicar melhor online."></textarea>
+    </div>
+
+    <div class="field">
+      <label>O que ela já tentou fazer para resolver esse problema — e não funcionou?</label>
+      <div class="hint">Tentativas frustradas revelam o que ela NÃO quer repetir. Isso informa como você deve posicionar seu curso.</div>
+      <textarea id="p_tentativas" placeholder="Ex: Já fez cursos genéricos de liderança que não se aplicavam à sua realidade. Tentou criar um perfil no LinkedIn mas não sabe o que postar. Comprou livros que não terminou de ler."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Quais são as principais objeções que ela teria para comprar um curso sobre este tema?</label>
+      <div class="check-grid" id="objecoes_grid">
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Não tenho tempo para fazer um curso agora"> Não tenho tempo para fazer um curso agora</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Não sei se este conteúdo se aplica à minha realidade"> Não sei se aplica à minha realidade</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Já tentei aprender isso antes e não consegui aplicar"> Já tentei antes e não consegui aplicar</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="O preço está fora do que posso pagar agora"> O preço está fora do que posso pagar</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Não confio em cursos online — prefiro presencial"> Prefiro aprendizado presencial</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Não sei se o instrutor tem credibilidade suficiente"> Dúvida sobre a credibilidade do instrutor</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>O que ela sente quando pensa no problema que ainda não resolveu?</label>
+      <div class="hint">Frustração, ansiedade, vergonha, urgência? Nomear a emoção humaniza a persona.</div>
+      <textarea id="p_emocao" placeholder="Ex: Sente que está ficando para trás. Tem vergonha de não saber usar as ferramentas que os mais jovens dominam com facilidade. Tem medo de se tornar irrelevante."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(2)">← Voltar</button>
+      <button class="btn btn-fwd" onclick="goTo(4)">Avançar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 4: DESEJOS E ASPIRAÇÕES -->
+  <div class="card" id="s4">
+    <div class="c-step">Etapa 4 de 6 — Desejos e Aspirações</div>
+    <div class="c-title">O que esta pessoa quer conquistar?</div>
+    <div class="c-sub">A dor move para longe do problema. O desejo move em direção ao sonho. Entender as aspirações da persona é entender o que ela está realmente comprando quando compra seu curso.</div>
+
+    <div class="callout teal">
+      <strong>🌟 Venda a transformação, não o conteúdo</strong>
+      Ninguém compra um curso de liderança — as pessoas compram respeito, promoção, time engajado. Ninguém compra um curso de Excel — as pessoas compram tempo economizado e chefe impressionado. O desejo revela o que sua persona está realmente buscando.
+    </div>
+
+    <div class="field">
+      <label>Qual é a maior aspiração profissional desta persona?</label>
+      <div class="hint">O que ela quer alcançar na carreira nos próximos 1-3 anos?</div>
+      <textarea id="p_aspiracao" placeholder="Ex: Ser reconhecida como referência na sua área. Ter uma fonte de renda independente que não dependa de vínculo empregatício. Criar algo próprio que gere valor para outras pessoas."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Como é o dia ideal desta persona depois de ter aprendido o que você ensina?</label>
+      <div class="hint">Descreva a vida dela após a transformação. O antes e o depois.</div>
+      <textarea id="p_vida_ideal" placeholder="Ex: Acorda sabendo que tem um produto digital gerando renda enquanto dorme. Recebe convites para palestrar. Tem clareza sobre seu posicionamento e não precisa mais justificar seu valor para ninguém."></textarea>
+    </div>
+
+    <div class="field">
+      <label>O que ela quer que outras pessoas digam sobre ela depois da transformação?</label>
+      <div class="hint">O desejo de reconhecimento social é um dos motores mais poderosos de compra.</div>
+      <input type="text" id="p_reconhecimento" placeholder="Ex: 'Você é a maior referência que conheço nessa área', 'Como você conseguiu estruturar isso tão bem?'">
+    </div>
+
+    <div class="field">
+      <label>Qual é o nível de urgência que ela sente em relação a este tema?</label>
+      <div class="scale-row" id="urgScale">
+        <button class="scale-btn" onclick="selScale(this,'urgScale','p_urg','1')">1</button>
+        <button class="scale-btn" onclick="selScale(this,'urgScale','p_urg','2')">2</button>
+        <button class="scale-btn" onclick="selScale(this,'urgScale','p_urg','3')">3</button>
+        <button class="scale-btn" onclick="selScale(this,'urgScale','p_urg','4')">4</button>
+        <button class="scale-btn" onclick="selScale(this,'urgScale','p_urg','5')">5</button>
+      </div>
+      <div class="scale-labels"><span>Pode esperar, não é urgente</span><span>Precisa resolver isso agora</span></div>
+      <input type="hidden" id="p_urg">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(3)">← Voltar</button>
+      <button class="btn btn-fwd" onclick="goTo(5)">Avançar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 5: COMPORTAMENTO E LINGUAGEM -->
+  <div class="card" id="s5">
+    <div class="c-step">Etapa 5 de 6 — Comportamento e Linguagem</div>
+    <div class="c-title">Como esta pessoa se comunica e se comporta?</div>
+    <div class="c-sub">A linguagem que você usa no seu curso deve ser a linguagem que ela usa no dia a dia. Quando a persona se reconhece nas palavras, a conexão é imediata.</div>
+
+    <div class="callout sage">
+      <strong>🗣️ Fale como ela fala</strong>
+      Um dos erros mais comuns em cursos é usar linguagem técnica demais ou informal demais para o perfil do aluno. Conhecer o vocabulário, os exemplos e as referências da persona é o que faz o conteúdo soar como uma conversa — não como uma aula.
+    </div>
+
+    <div class="field">
+      <label>Que palavras ou expressões ela usaria para descrever o problema que você resolve?</label>
+      <div class="hint">As palavras dela — não as suas. Isso vai direto para os títulos das suas aulas.</div>
+      <textarea id="p_vocabulario" placeholder="Ex: 'Não sei por onde começar', 'Minha cabeça não para mas não sai do papel', 'Todo mundo parece saber fazer isso menos eu', 'Tenho tudo na cabeça mas não consigo organizar'"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Quais são as referências, figuras ou conteúdos que ela consome e admira?</label>
+      <div class="hint">Livros, podcasts, canais, profissionais, autores. Isso calibra o nível e o estilo do conteúdo.</div>
+      <textarea id="p_referencias" placeholder="Ex: Consome conteúdo no LinkedIn, ouve podcasts de negócios e carreira, lê livros de gestão e liderança, acompanha alguns youtubers da área de finanças pessoais"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Qual é o tom de comunicação que ela responde melhor?</label>
+      <div class="radio-grid">
+        <label class="r-opt" onclick="selR(this,'tom','Direto e prático — sem enrolação')">
+          <input type="radio" name="tom">
+          <div class="r-opt-txt"><strong>Direto e prático</strong><span>Vai ao ponto, sem rodeios</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'tom','Didático e detalhado — gosta de profundidade')">
+          <input type="radio" name="tom">
+          <div class="r-opt-txt"><strong>Didático e profundo</strong><span>Quer entender o porquê</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'tom','Informal e próximo — como conversa entre amigos')">
+          <input type="radio" name="tom">
+          <div class="r-opt-txt"><strong>Informal e próximo</strong><span>Linguagem de conversa</span></div>
+        </label>
+        <label class="r-opt" onclick="selR(this,'tom','Formal e técnico — gosta de embasamento')">
+          <input type="radio" name="tom">
+          <div class="r-opt-txt"><strong>Formal e técnico</strong><span>Valoriza fontes e dados</span></div>
+        </label>
+      </div>
+      <input type="hidden" id="p_tom">
+    </div>
+
+    <div class="field">
+      <label>Onde ela costuma estar quando aprende algo novo? (contexto físico)</label>
+      <div class="check-grid" id="local_grid">
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="No celular, no transporte ou em momentos livres"> No celular — transporte ou momentos livres</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="No computador, em casa com hora reservada"> No computador, com hora reservada em casa</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="No trabalho, durante pausas ou horário de almoço"> No trabalho, durante pausas</label>
+        <label class="c-opt" onclick="togCheck(this)"><input type="checkbox" value="Ouvindo áudio enquanto faz outras coisas"> Ouvindo áudio em paralelo com outras atividades</label>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(4)">← Voltar</button>
+      <button class="btn btn-fwd" onclick="goTo(6)">Avançar →</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 6: REVISÃO E SÍNTESE -->
+  <div class="card" id="s6">
+    <div class="c-step">Etapa 6 de 6 — Revisão e Síntese</div>
+    <div class="c-title">Confirme e complemente</div>
+    <div class="c-sub">Revise os dados da sua persona antes de gerar o documento. Adicione qualquer observação que não coubesse nas etapas anteriores.</div>
+
+    <div class="persona-preview" id="personaPreview">
+      <h4>👤 Resumo da Persona</h4>
+    </div>
+
+    <div class="callout violet">
+      <strong>✅ O que acontece ao clicar em "Gerar persona"</strong>
+      A IA vai sintetizar todos os elementos que você preencheu em um documento completo de persona — com perfil, dores, desejos, linguagem e orientações práticas para criar seu curso. O resultado serve como referência permanente para todas as decisões do minicurso.
+    </div>
+
+    <div class="field">
+      <label>Há algo importante sobre esta persona que não foi coberto nas etapas anteriores?</label>
+      <div class="hint">Contexto cultural, regional, particularidades do setor, crenças limitantes específicas, etc.</div>
+      <textarea id="p_extras" placeholder="Ex: A maioria é do interior do Brasil, valoriza muito a praticidade e desconfia de promessas muito grandes. Prefere exemplos concretos a conceitos abstratos..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Em uma frase, qual é a maior transformação que esta persona busca?</label>
+      <div class="hint">Esta frase pode virar o subtítulo do seu curso.</div>
+      <input type="text" id="p_transformacao" placeholder="Ex: Sair do anonimato profissional para ser reconhecida como referência na sua área">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(5)">← Voltar</button>
+      <button class="btn btn-done" onclick="generateReport()">👤 Gerar minha persona</button>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="report-panel" id="reportPanel">
+    <div class="report-header">
+      <span style="font-size:52px;display:block;margin-bottom:14px">👤</span>
+      <h2>Sua persona está pronta!</h2>
+      <p>Use <strong>📋 Copiar</strong> para colar no Word ou Google Docs.<br>
+         Use <strong>🖨️ Imprimir</strong> e escolha "Salvar como PDF".<br>
+         Este documento serve de referência para o Recorte de Nicho e o Estruturador de Minicurso.</p>
+    </div>
+    <div class="report-box" id="reportBox">
+      <div class="report-loading"><div class="spinner"></div><br>Gerando sua persona com IA...</div>
+    </div>
+    <div class="report-actions">
+      <button class="btn-copy" onclick="copyReport()">📋 Copiar persona</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      <button class="btn-new" onclick="novaPersona()">👤 Nova persona</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TOTAL  = 6;
+const PHASES = ['Perfil','Contexto','Dores','Desejos','Linguagem','Revisão'];
+let cur = 0;
+
+// ── START ──────────────────────────────────
+function startTool() {
+  document.getElementById('welcomeCard').style.display = 'none';
+  document.getElementById('prog').style.display = 'block';
+  buildPhases();
+  goTo(1);
+}
+
+function buildPhases() {
+  const strip = document.getElementById('phaseStrip');
+  strip.innerHTML = '';
+  PHASES.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'ps-dot'; d.id = `ps${i}`;
+    strip.appendChild(d);
+  });
+}
+
+// ── NAVIGATION ─────────────────────────────
+function goTo(n) {
+  for (let i = 1; i <= TOTAL; i++) {
+    const el = document.getElementById(`s${i}`);
+    if (el) el.classList.remove('active');
+  }
+  document.getElementById('reportPanel').classList.remove('active');
+  cur = n;
+  const card = document.getElementById(`s${n}`);
+  if (card) { card.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  updateProg();
+  if (n === 6) fillPreview();
+}
+
+function updateProg() {
+  const pct = Math.round(((cur - 1) / TOTAL) * 100);
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('pctLbl').textContent = pct + '%';
+  document.getElementById('stepLbl').textContent = `Etapa ${cur} de ${TOTAL}`;
+  for (let i = 0; i < TOTAL; i++) {
+    const el = document.getElementById(`ps${i}`);
+    if (!el) continue;
+    el.className = 'ps-dot';
+    if (i < cur - 1)    el.classList.add('done');
+    else if (i === cur - 1) el.classList.add('active');
+  }
+}
+
+// ── SELECTORS ──────────────────────────────
+function selAge(btn, val) {
+  document.querySelectorAll('#ageStrip .age-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('p_idade').value = val;
+}
+
+function selR(opt, name, val) {
+  document.querySelectorAll(`[name="${name}"]`).forEach(r => {
+    r.closest('.r-opt').classList.remove('sel');
+  });
+  opt.classList.add('sel');
+  document.getElementById(`p_${name}`).value = val;
+}
+
+function selScale(btn, stripId, hiddenId, val) {
+  document.querySelectorAll(`#${stripId} .scale-btn`).forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById(hiddenId).value = val;
+}
+
+function togCheck(opt) {
+  opt.classList.toggle('sel');
+  opt.querySelector('input').checked = opt.classList.contains('sel');
+}
+
+// ── COLLECT ────────────────────────────────
+function g(id) {
+  const el = document.getElementById(id);
+  return el && el.value.trim() ? el.value.trim() : 'Não informado';
+}
+
+function gc(selector) {
+  const items = [];
+  document.querySelectorAll(selector + ' .c-opt.sel input').forEach(i => {
+    if (i.value) items.push(i.value);
+  });
+  return items.length ? items.join('; ') : 'Não selecionado';
+}
+
+// ── PREVIEW ────────────────────────────────
+function fillPreview() {
+  const rows = [
+    ['Nome',           g('p_nome')],
+    ['Idade',          g('p_idade')],
+    ['Profissão',      g('p_profissao')],
+    ['Escolaridade',   g('p_esc')],
+    ['Situação',       g('p_sit')],
+    ['Tom preferido',  g('p_tom')],
+    ['Urgência',       g('p_urg') !== 'Não informado' ? g('p_urg') + '/5' : 'Não informado'],
+    ['Tech',           g('p_tech') !== 'Não informado' ? g('p_tech') + '/5' : 'Não informado'],
+    ['Transformação',  g('p_transformacao')],
+  ];
+  const prev = document.getElementById('personaPreview');
+  prev.innerHTML = '<h4>👤 Resumo da Persona</h4>' +
+    rows.filter(r => r[1] !== 'Não informado').map(r =>
+      `<div class="pp-row">
+        <span class="pp-lbl">${r[0]}</span>
+        <span class="pp-val">${r[1]}</span>
+      </div>`
+    ).join('');
+}
+
+// ── GENERATE REPORT ────────────────────────
+async function generateReport() {
+  for (let i = 1; i <= TOTAL; i++) {
+    const el = document.getElementById(`s${i}`);
+    if (el) el.classList.remove('active');
+  }
+  document.getElementById('progFill').style.width = '100%';
+  document.getElementById('pctLbl').textContent = '100%';
+  for (let i = 0; i < TOTAL; i++) {
+    const el = document.getElementById(`ps${i}`);
+    if (el) el.className = 'ps-dot done';
+  }
+  document.getElementById('reportPanel').classList.add('active');
+  document.getElementById('reportBox').innerHTML =
+    '<div class="report-loading"><div class="spinner"></div><br>Gerando sua persona com IA...</div>';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const d = {
+    nome:           g('p_nome'),
+    idade:          g('p_idade'),
+    profissao:      g('p_profissao'),
+    esc:            g('p_esc'),
+    autodesc:       g('p_autodesc'),
+    sit:            g('p_sit'),
+    tempo:          g('p_tempo'),
+    formatos:       gc('#formatos_grid'),
+    tech:           g('p_tech'),
+    dor:            g('p_dor_principal'),
+    tentativas:     g('p_tentativas'),
+    objecoes:       gc('#objecoes_grid'),
+    emocao:         g('p_emocao'),
+    aspiracao:      g('p_aspiracao'),
+    vida_ideal:     g('p_vida_ideal'),
+    reconhecimento: g('p_reconhecimento'),
+    urg:            g('p_urg'),
+    vocabulario:    g('p_vocabulario'),
+    referencias:    g('p_referencias'),
+    tom:            g('p_tom'),
+    local:          gc('#local_grid'),
+    extras:         g('p_extras'),
+    transformacao:  g('p_transformacao')
+  };
+
+  const prompt = `Você é um especialista em marketing, design instrucional e psicologia do consumidor. Crie um DOCUMENTO DE PERSONA COMPLETO, rico e acionável para o criador de minicurso abaixo.
+
+O documento deve ser altamente específico, humano e útil — não genérico. Use as informações fornecidas para construir uma persona viva, com contradições, nuances e detalhes que tornam o aluno real.
+
+═══════════════════════════════════
+DADOS DA PERSONA
+═══════════════════════════════════
+Nome fictício: ${d.nome}
+Faixa etária: ${d.idade}
+Perfil profissional: ${d.profissao}
+Escolaridade: ${d.esc}
+Como se descreve: ${d.autodesc}
+Situação de vida atual: ${d.sit}
+Disponibilidade de tempo: ${d.tempo}
+Formatos preferidos: ${d.formatos}
+Nível de familiaridade com tecnologia: ${d.tech}/5
+Urgência em resolver o problema: ${d.urg}/5
+
+DORES E FRUSTRAÇÕES:
+Dor principal: ${d.dor}
+O que já tentou e não funcionou: ${d.tentativas}
+Principais objeções: ${d.objecoes}
+Como se sente em relação ao problema: ${d.emocao}
+
+DESEJOS E ASPIRAÇÕES:
+Aspiração profissional: ${d.aspiracao}
+Como seria a vida ideal após a transformação: ${d.vida_ideal}
+O que quer que outros digam sobre ela: ${d.reconhecimento}
+
+COMPORTAMENTO E LINGUAGEM:
+Vocabulário que usa para descrever o problema: ${d.vocabulario}
+Referências e conteúdos que consome: ${d.referencias}
+Tom de comunicação preferido: ${d.tom}
+Onde aprende: ${d.local}
+
+COMPLEMENTOS:
+Informações adicionais: ${d.extras}
+Transformação central buscada: ${d.transformacao}
+
+═══════════════════════════════════
+FORMATO DO DOCUMENTO (texto puro, sem markdown)
+═══════════════════════════════════
+
+════════════════════════════════════
+PERSONA DO MINICURSO
+${d.nome} — [Título que resume quem ela é em 5 palavras]
+════════════════════════════════════
+
+QUEM É ${d.nome.toUpperCase()}
+[3-4 parágrafos descrevendo a persona de forma viva e humana. Inclua contexto de vida, rotina, como chegou até aqui e o que a define profissionalmente. Escreva como se estivesse descrevendo uma pessoa real.]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AS DORES DE ${d.nome.toUpperCase()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dor central:
+[Descreva a dor principal com precisão emocional]
+
+O que ela já tentou:
+[Liste e comente as tentativas frustradas]
+
+Como ela se sente:
+[Descreva o estado emocional com empatia]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OS DESEJOS DE ${d.nome.toUpperCase()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+O que ela quer alcançar:
+[Descreva as aspirações de forma concreta]
+
+Como seria a vida após a transformação:
+[O antes e o depois em detalhes]
+
+O que quer que digam sobre ela:
+[O desejo de reconhecimento social]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMO FALAR COM ${d.nome.toUpperCase()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Vocabulário dela:
+[As palavras e frases que ela usa — use aspas]
+
+Tom recomendado:
+[Como o criador deve se comunicar]
+
+O que evitar:
+[Palavras, abordagens e erros que a afastam]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OBJEÇÕES E COMO SUPERÁ-LAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Para cada objeção identificada, sugira como o criador do curso pode respondê-la antecipadamente no conteúdo, na página de vendas ou na comunicação]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ORIENTAÇÕES PARA O MINICURSO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Formato ideal para esta persona: [Recomendação baseada nos dados]
+Duração ideal de cada aula: [Recomendação]
+Tom e linguagem: [Como gravar e escrever para ela]
+Exemplos que ressoam: [Tipos de exemplos e casos que ela reconhece]
+
+A FRASE DA TRANSFORMAÇÃO
+"${d.transformacao}"
+
+════════════════════════════════════
+Kit de Transformação do Conhecimento
+Baseado no Modelo SECI — Nonaka & Takeuchi
+════════════════════════════════════`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content && data.content[0] ? data.content[0].text : null;
+    if (text) {
+      document.getElementById('reportBox').textContent = text;
+    } else {
+      showFallback(d);
+    }
+  } catch (e) {
+    showFallback(d);
+  }
+}
+
+function showFallback(d) {
+  document.getElementById('reportBox').textContent =
+`════════════════════════════════════
+PERSONA DO MINICURSO
+${d.nome}
+════════════════════════════════════
+
+PERFIL BÁSICO
+Nome: ${d.nome}
+Idade: ${d.idade}
+Profissão: ${d.profissao}
+Escolaridade: ${d.esc}
+Como se descreve: ${d.autodesc}
+Situação atual: ${d.sit}
+Disponibilidade: ${d.tempo}
+Formatos preferidos: ${d.formatos}
+Familiaridade com tecnologia: ${d.tech}/5
+Urgência: ${d.urg}/5
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AS DORES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dor principal: ${d.dor}
+O que já tentou: ${d.tentativas}
+Objeções: ${d.objecoes}
+Como se sente: ${d.emocao}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OS DESEJOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Aspiração: ${d.aspiracao}
+Vida ideal: ${d.vida_ideal}
+Reconhecimento buscado: ${d.reconhecimento}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LINGUAGEM E COMPORTAMENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Vocabulário: ${d.vocabulario}
+Referências: ${d.referencias}
+Tom preferido: ${d.tom}
+Onde aprende: ${d.local}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+A TRANSFORMAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"${d.transformacao}"
+
+════════════════════════════════════
+Kit de Transformação do Conhecimento
+Baseado no Modelo SECI — Nonaka & Takeuchi
+════════════════════════════════════`;
+}
+
+// ── EXPORT ─────────────────────────────────
+function copyReport() {
+  const text = document.getElementById('reportBox').textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('✅ Persona copiada!'))
+      .catch(() => selectAll());
+  } else {
+    selectAll();
+  }
+}
+
+function selectAll() {
+  const box = document.getElementById('reportBox');
+  const range = document.createRange();
+  range.selectNodeContents(box);
+  const sel = window.getSelection();
+  sel.removeAllRanges(); sel.addRange(range);
+  showToast('✅ Texto selecionado — pressione Ctrl+C');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function novaPersona() {
+  document.getElementById('reportPanel').classList.remove('active');
+  ['p_nome','p_profissao','p_autodesc','p_dor_principal','p_tentativas',
+   'p_emocao','p_aspiracao','p_vida_ideal','p_reconhecimento',
+   'p_vocabulario','p_referencias','p_extras','p_transformacao'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['p_idade','p_esc','p_sit','p_tempo','p_tech','p_urg','p_tom'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('.age-btn.sel, .r-opt.sel, .scale-btn.sel, .c-opt.sel')
+    .forEach(el => {
+      el.classList.remove('sel');
+      const inp = el.querySelector('input');
+      if (inp) inp.checked = false;
+    });
+  goTo(1);
+}
+</script>
+</body>
+</html>
