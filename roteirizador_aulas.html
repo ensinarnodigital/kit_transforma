@@ -1078,7 +1078,8 @@ REGRAS IMPORTANTES:
 - Inclua [PAUSA] onde o silêncio adiciona impacto
 - Inclua (acelera um pouco), (diminui o ritmo), (olha direto para a câmera) como direções quando útil
 - O roteiro deve soar como o professor, não como um livro
-- Seja generoso com exemplos e específico nas transições`;
+- Seja generoso com exemplos e específico nas transições
+- Incorpore TODOS os elementos fornecidos acima (objetivo, ideia central, por que importa, equívoco a corrigir, pontos, analogia, síntese, CTA, teaser etc.); não omita nenhum`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1086,14 +1087,14 @@ REGRAS IMPORTANTES:
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 4000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
     const data = await res.json();
     const text = data.content && data.content[0] ? data.content[0].text : null;
     if (text) {
-      document.getElementById('reportBox').textContent = text;
+      document.getElementById('reportBox').textContent = text + '\n\n' + fichaDaAula(d);
     } else {
       showFallback(d);
     }
@@ -1102,62 +1103,90 @@ REGRAS IMPORTANTES:
   }
 }
 
+function has(v) { return v && v !== 'Não informado'; }
+function campo(rotulo, v) { return has(v) ? rotulo + ': ' + v : ''; }
+function bloco(titulo, v) { return has(v) ? titulo + '\n' + v + '\n' : ''; }
+function secao(nome) { return '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' + nome + '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'; }
+function juntar(linhas) { return linhas.filter(Boolean).join('\n'); }
+
+// Registro completo de tudo o que foi preenchido na ferramenta (nada é omitido)
+function fichaDaAula(d) {
+  return [
+    '════════════════════════════════════',
+    'FICHA DA AULA — CONTEÚDO INSERIDO',
+    '(registro completo de tudo o que foi preenchido)',
+    '════════════════════════════════════',
+    '',
+    secao('IDENTIDADE DA AULA'),
+    juntar([campo('Curso', d.curso), campo('Módulo', d.modulo), campo('Título da aula', d.titulo), campo('Número da aula', d.num),
+            campo('Duração', d.duracao), campo('Perfil do aluno', d.aluno)]),
+    '',
+    secao('NÚCLEO PEDAGÓGICO'),
+    bloco('OBJETIVO (o que o aluno vai conseguir fazer):', d.objetivo),
+    bloco('IDEIA CENTRAL:', d.ideia),
+    bloco('POR QUE IMPORTA PARA O ALUNO (dor/problema que resolve):', d.por_que),
+    bloco('EQUÍVOCO COMUM A CORRIGIR:', d.equivoco),
+    secao('ABERTURA'),
+    campo('Tipo de gancho', d.hook_tipo),
+    bloco('Texto de abertura:', d.abertura),
+    bloco('O que o aluno vai aprender (preview):', d.preview),
+    secao('DESENVOLVIMENTO'),
+    bloco('Ponto 1:', d.ponto1), bloco('Ponto 2:', d.ponto2), bloco('Ponto 3:', d.ponto3),
+    bloco('Analogia / metáfora:', d.analogia),
+    secao('FECHAMENTO'),
+    bloco('Síntese:', d.sintese),
+    campo('Tipo de CTA', d.cta_tipo),
+    bloco('Texto do CTA:', d.cta),
+    bloco('Teaser da próxima aula:', d.teaser),
+    secao('TOM, FORMATO E PRODUÇÃO'),
+    juntar([campo('Tom', d.tom), campo('Formato de gravação', d.fmt)]),
+    bloco('Notas de produção:', d.prod),
+    bloco('Palavras a evitar:', d.evitar),
+    bloco('Instruções especiais para o roteiro:', d.extras)
+  ].filter(function (x) { return x !== ''; }).join('\n').replace(/\n{3,}/g, '\n\n');
+}
+
 function showFallback(d) {
-  document.getElementById('reportBox').textContent =
-`════════════════════════════════════
-ROTEIRO — ${d.titulo}
-${d.curso} | ${d.modulo}
-Duração: ${d.duracao} | Tom: ${d.tom} | Formato: ${d.fmt}
-════════════════════════════════════
-
-[ANTES DE GRAVAR]
-• Confirme iluminação e silêncio do ambiente
-• Tenha à mão: ${d.prod !== 'Não informado' ? d.prod : 'seus materiais de apoio'}
-• Revise o objetivo desta aula: ${d.objetivo}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ABERTURA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[Gancho — ${d.hook_tipo}]
-${d.abertura}
-
-[PAUSA]
-
-${d.preview}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DESENVOLVIMENTO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-IDEIA CENTRAL: ${d.ideia}
-
-PONTO 1:
-${d.ponto1}
-
-PONTO 2:
-${d.ponto2}
-
-${d.ponto3 !== 'Não informado' ? 'PONTO 3:\n' + d.ponto3 + '\n' : ''}
-ANALOGIA:
-${d.analogia}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FECHAMENTO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SÍNTESE:
-${d.sintese}
-
-[PAUSA]
-
-CHAMADA PARA AÇÃO — ${d.cta_tipo}:
-${d.cta}
-
-PRÓXIMA AULA:
-${d.teaser}
-
-════════════════════════════════════
-Kit de Transformação do Conhecimento
-Baseado no Modelo SECI — Nonaka & Takeuchi
-════════════════════════════════════`;
+  const partes = [
+    '════════════════════════════════════',
+    'ROTEIRO' + (has(d.titulo) ? ' — ' + d.titulo : '') + (has(d.num) ? ' (Aula ' + d.num + ')' : ''),
+    [has(d.curso) ? d.curso : '', has(d.modulo) ? d.modulo : ''].filter(Boolean).join(' | '),
+    [campo('Duração', d.duracao), campo('Tom', d.tom), campo('Formato', d.fmt)].filter(Boolean).join(' | '),
+    campo('Perfil do aluno', d.aluno),
+    '════════════════════════════════════',
+    '',
+    '[ANTES DE GRAVAR]',
+    '• Confirme iluminação e silêncio do ambiente',
+    '• Tenha à mão: ' + (has(d.prod) ? d.prod : 'seus materiais de apoio'),
+    has(d.objetivo) ? '• Revise o objetivo desta aula: ' + d.objetivo : '',
+    has(d.evitar) ? '• Palavras a evitar: ' + d.evitar : '',
+    '',
+    secao('NÚCLEO PEDAGÓGICO'),
+    bloco('OBJETIVO (o que o aluno vai conseguir fazer):', d.objetivo),
+    bloco('IDEIA CENTRAL:', d.ideia),
+    bloco('POR QUE IMPORTA PARA O ALUNO:', d.por_que),
+    bloco('EQUÍVOCO COMUM A CORRIGIR:', d.equivoco),
+    secao('ABERTURA'),
+    has(d.hook_tipo) ? '[Gancho — ' + d.hook_tipo + ']' : '',
+    has(d.abertura) ? d.abertura + '\n' : '',
+    '[PAUSA]',
+    has(d.preview) ? '\n' + d.preview + '\n' : '',
+    secao('DESENVOLVIMENTO'),
+    bloco('PONTO 1:', d.ponto1), bloco('PONTO 2:', d.ponto2), bloco('PONTO 3:', d.ponto3),
+    bloco('ANALOGIA:', d.analogia),
+    secao('FECHAMENTO'),
+    bloco('SÍNTESE:', d.sintese),
+    '[PAUSA]',
+    '',
+    bloco('CHAMADA PARA AÇÃO' + (has(d.cta_tipo) ? ' — ' + d.cta_tipo : '') + ':', d.cta),
+    bloco('PRÓXIMA AULA:', d.teaser),
+    has(d.extras) ? secao('INSTRUÇÕES ESPECIAIS INFORMADAS') + d.extras + '\n' : '',
+    '════════════════════════════════════',
+    'Kit de Transformação do Conhecimento',
+    'Baseado no Modelo SECI — Nonaka & Takeuchi',
+    '════════════════════════════════════'
+  ];
+  document.getElementById('reportBox').textContent = partes.join('\n').replace(/\n{3,}/g, '\n\n');
 }
 
 function copyReport() {
