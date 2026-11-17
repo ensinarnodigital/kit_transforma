@@ -5,40 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Roteirizador de Aulas | Kit de Transformação do Conhecimento</title>
 <style>
-:root{--bg:#f5f4f0;--ink:#20252b;--muted:#65717c;--brand:#bd4b25;--green:#397653;--line:#deded8;--card:#fff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}
-header{background:#20252b;color:#fff;padding:34px 18px;text-align:center;border-bottom:4px solid var(--brand)}
-header small{letter-spacing:1.5px;text-transform:uppercase;color:#c8cdd1}h1{font-size:clamp(27px,5vw,42px);margin:8px 0}header p{max-width:680px;margin:auto;color:#e1e4e6}
-main{max-width:850px;margin:26px auto;padding:0 14px 60px}.panel,.step,.result{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:25px;margin-bottom:18px;box-shadow:0 3px 15px #17212b0c}
-h2{font-size:23px;margin:0 0 8px}h3{font-size:17px;margin:22px 0 10px}.intro{color:var(--muted)}
-.progress{height:7px;background:#e5e5e0;border-radius:9px;overflow:hidden;margin:12px 0}.bar{height:100%;width:0;background:var(--brand);transition:width .2s}
-.step{display:none}.step.active{display:block}.step-label{font-size:12px;color:var(--brand);font-weight:bold;text-transform:uppercase;letter-spacing:1px}
+:root{--bg:#f4f6fb;--ink:#20263a;--muted:#667085;--brand:#6654c7;--green:#397653;--line:#e4e7f0;--card:#fff}
+*{box-sizing:border-box}html{width:100%;overflow-x:hidden}body{margin:0;min-width:0;width:100%;overflow-x:hidden;background:var(--bg);color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}
+header{background:linear-gradient(135deg,#171d35 0%,#29234f 58%,#51429b 100%);color:#fff;padding:28px 18px 42px;text-align:center;border-bottom:5px solid #8b7be2}
+header small{display:inline-block;letter-spacing:1.2px;text-transform:none;color:#e0dcff;font-size:14px;font-weight:700}h1{font-size:clamp(38px,7vw,64px);line-height:1.02;margin:25px 0 16px;font-weight:800;letter-spacing:-1.8px}h1 span{display:block;color:#bcb1ff}header p{max-width:760px;margin:auto;color:#e7e5f5;font-size:17px;line-height:1.65}
+main{max-width:900px;margin:0 auto;padding:0 16px 60px}.panel,.step,.result{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px;margin-bottom:18px;box-shadow:0 8px 28px #25204a0c}
+h2{font-size:25px;margin:0 0 10px}h3{font-size:17px;margin:22px 0 10px}.intro{color:var(--muted)}
+#welcome{max-width:780px;margin:-18px auto 30px;position:relative;text-align:center;padding:28px clamp(20px,5vw,48px) 30px}
+.welcome-progress{text-align:left;margin-bottom:28px}.welcome-icon{font-size:38px;margin:4px 0 8px}.welcome-copy{max-width:650px;margin:0 auto;font-size:16px;line-height:1.75}.benefits{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:24px 0 18px}.benefits span{background:#f3f1ff;border:1px solid #e6e1ff;color:#4e438e;border-radius:30px;padding:9px 14px;font-size:13px;font-weight:700}.welcome-note{max-width:620px;margin:0 auto 22px}.start-button{font-size:16px;padding:15px 26px;box-shadow:0 6px 16px #5142a533}.welcome .status{margin-top:13px}
+.progress{height:8px;background:#e9e7f4;border-radius:9px;overflow:hidden;margin:12px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,#6654c7,#a89cf2);transition:width .2s}
+[hidden]{display:none!important}.step{display:none}.step.active{display:block}.step-label{font-size:12px;color:var(--brand);font-weight:bold;text-transform:uppercase;letter-spacing:1px}
 .field{margin:16px 0}.field label{display:block;font-weight:bold;margin-bottom:6px;font-size:14px}
 input,textarea,select{width:100%;padding:12px;border:1px solid #c9cbc7;border-radius:7px;font:inherit;background:#fff;color:var(--ink)}
 textarea{min-height:85px;resize:vertical}input:focus,textarea:focus,select:focus{outline:2px solid #bd4b2540;border-color:var(--brand)}
 .hint{font-size:12px;color:var(--muted);margin-top:4px}.choices{display:flex;flex-wrap:wrap;gap:8px}
-.choice{border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;background:#fff;font-size:14px}
-.choice.selected{border-color:var(--brand);background:#fff1eb;color:#8c3218;font-weight:bold}
+.choice{border:1px solid var(--line);border-radius:9px;padding:10px 14px;cursor:pointer;background:#fff;font-size:14px;color:#3b4054}
+.choice.selected{border-color:var(--brand);background:#f0edff;color:#4b3ba5;font-weight:bold}
 .actions{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:22px}
 button{border:0;border-radius:8px;padding:12px 18px;font-weight:bold;font-size:14px;cursor:pointer}
-.primary{background:var(--brand);color:white}.secondary{background:#ecece8;color:#30363b}.success{background:var(--green);color:#fff}
+.primary{background:linear-gradient(135deg,#6654c7,#5142a5);color:white}.secondary{background:#eeedf5;color:#303047}.success{background:var(--green);color:#fff}
 .status{font-size:12px;color:var(--green);min-height:18px;margin-top:8px}
 .result{display:none}.result.active{display:block}.result-text{white-space:pre-wrap;font:15px/1.7 Arial,sans-serif;overflow-wrap:anywhere}
 @media print{body{background:#fff;font-size:11pt}header,.progress,.step,.panel,.actions,.status,.no-print{display:none!important}main{max-width:none;margin:0;padding:0}.result{display:block!important;border:0;box-shadow:none;padding:0;margin:0}.result-text{white-space:pre-wrap;overflow:visible;font-size:10.5pt;line-height:1.5}.result h2{font-size:18pt}}
-@media(max-width:560px){.panel,.step,.result{padding:18px}.actions button{flex:1}}
+@media(max-width:560px){header{padding:25px 18px 36px}header p{font-size:15px}#welcome{margin:-14px auto 24px;padding:22px 17px}.panel,.step,.result{padding:18px}.actions button{flex:1}.benefits{gap:7px}.benefits span{font-size:12px;padding:8px 10px}}
 </style>
 </head>
 <body>
-<header><small>Kit de Transformação do Conhecimento</small><h1>Roteirizador de Aulas</h1><p>Organize as ideias de uma aula em um roteiro claro, com abertura, desenvolvimento e fechamento, pronto para revisar e gravar.</p></header>
+<header><small>📚 Kit de Transformação do Conhecimento</small><h1>Roteirizador <span>de Aulas</span></h1><p>Transforme cada aula do seu minicurso em um roteiro preciso, pronto para gravar — com abertura, desenvolvimento e fechamento estruturados.</p></header>
 <main>
 <section class="panel" id="welcome">
-<h2>Vamos estruturar sua aula?</h2>
-<p class="intro">Preencha as cinco etapas. O sistema salva suas respostas automaticamente neste navegador. Ao final, você poderá copiar, imprimir ou salvar o roteiro em PDF.</p>
-<div class="status" id="saveStatus" aria-live="polite">Suas respostas serão salvas automaticamente neste dispositivo.</div>
-<button class="primary" id="begin">Começar roteiro →</button>
+<div class="welcome-progress"><div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);font-weight:700"><span>Etapa 1 de 5</span><span>0%</span></div><div class="progress"><div class="bar" style="width:0"></div></div></div>
+<div class="welcome-icon" aria-hidden="true">🎬</div>
+<h2>Cada aula merece um roteiro</h2>
+<p class="intro welcome-copy">No microlearning, uma aula sem roteiro é uma aula sem destino. Este roteirizador aplica uma estrutura que ajuda a garantir clareza, ritmo e impacto em cada minuto gravado.</p>
+<div class="benefits"><span>⏱ 15–20 min por aula</span><span>🎯 5 etapas</span><span>📄 Roteiro pronto para gravar</span></div>
+<p class="intro welcome-note">Preencha uma aula por vez. Ao final, você terá um roteiro completo, organizado e pronto para orientar sua gravação.</p>
+<button class="primary start-button" id="begin">🎬 Criar meu roteiro</button>
+<div class="status" id="saveStatus" aria-live="polite">Suas respostas serão salvas automaticamente neste navegador.</div>
 </section>
 <div id="wizard" hidden>
-<div class="panel"><div style="display:flex;justify-content:space-between"><strong id="stepTitle">Etapa 1 de 5</strong><span id="percent">20%</span></div><div class="progress"><div class="bar" id="bar"></div></div></div>
+<div class="panel"><div class="status" id="wizardSaveStatus" aria-live="polite">Salvamento automático ativado neste navegador.</div><div style="display:flex;justify-content:space-between"><strong id="stepTitle">Etapa 1 de 5</strong><span id="percent">20%</span></div><div class="progress"><div class="bar" id="bar"></div></div></div>
 <section class="step" data-step="1">
 <div class="step-label">Etapa 1 de 5 — Identidade</div><h2>Qual aula você vai roteirizar?</h2>
 <div class="field"><label for="curso">Nome do minicurso</label><input id="curso" placeholder="Ex.: Liderança na prática"></div>
@@ -103,8 +109,10 @@ const choices=['duracao','gancho','ctaTipo','tom','formato'];
 let current=1;
 const $=id=>document.getElementById(id);
 function values(){const d={};ids.forEach(id=>d[id]=$(id).value);choices.forEach(k=>{const el=document.querySelector('[data-choice="'+k+'"] .selected');d[k]=el?el.textContent.trim():''});return d}
-function restore(){try{const d=JSON.parse(localStorage.getItem(KEY)||'{}');ids.forEach(id=>{if(d[id]!==undefined)$(id).value=d[id]});choices.forEach(k=>{document.querySelectorAll('[data-choice="'+k+'"] .choice').forEach(b=>b.classList.toggle('selected',b.textContent.trim()===d[k]))})}catch(e){}}
-let saveTimer;function save(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(values()));$('saveStatus').textContent='✓ Respostas salvas automaticamente neste navegador.'}catch(e){$('saveStatus').textContent='Não foi possível salvar neste navegador. Copie suas respostas ao concluir.'}},180)}
+function storage(){try{const test='__roteirizador_test__';localStorage.setItem(test,'1');localStorage.removeItem(test);return true}catch(e){return false}}
+function restore(){try{const d=JSON.parse(localStorage.getItem(KEY)||'{}');ids.forEach(id=>{if(d[id]!==undefined)$(id).value=d[id]});choices.forEach(k=>{document.querySelectorAll('[data-choice="'+k+'"] .choice').forEach(b=>b.classList.toggle('selected',b.textContent.trim()===d[k]))})}catch(e){$('saveStatus').textContent='O navegador bloqueou o armazenamento. Mantenha esta página aberta até imprimir ou copiar o roteiro.'}}
+let saveTimer;function saveNow(){try{localStorage.setItem(KEY,JSON.stringify(values()));const msg='✓ Respostas salvas automaticamente neste navegador.';if($('saveStatus'))$('saveStatus').textContent=msg;if($('wizardSaveStatus'))$('wizardSaveStatus').textContent=msg;return true}catch(e){const msg='Aviso: o navegador ou modo incorporado bloqueou o salvamento. Copie ou imprima o roteiro antes de sair.';if($('saveStatus'))$('saveStatus').textContent=msg;if($('wizardSaveStatus'))$('wizardSaveStatus').textContent=msg;return false}}
+function save(){clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,180)}
 function showStep(n){current=n;document.querySelectorAll('.step').forEach(s=>s.classList.toggle('active',Number(s.dataset.step)===n));$('stepTitle').textContent='Etapa '+n+' de 5';$('percent').textContent=Math.round(n/5*100)+'%';$('bar').style.width=(n/5*100)+'%';$('back').style.visibility=n===1?'hidden':'visible';$('next').textContent=n===5?'Gerar roteiro':'Avançar →';if(n===5)review();window.scrollTo({top:0,behavior:'smooth'})}
 function review(){const d=values();$('review').innerHTML='';[['Minicurso',d.curso],['Módulo',d.modulo],['Aula',d.titulo],['Objetivo',d.objetivo],['Ideia central',d.ideia],['Duração',d.duracao],['Tom',d.tom],['Formato',d.formato]].filter(x=>x[1]).forEach(x=>{const p=document.createElement('p');const b=document.createElement('strong');b.textContent=x[0]+': ';p.append(b,document.createTextNode(x[1]));$('review').append(p)})}
 function line(label,value){return value?label+':\n'+value+'\n\n':''}
@@ -131,9 +139,11 @@ $('next').addEventListener('click',()=>{if(current<5)showStep(current+1);else{$(
 document.addEventListener('input',e=>{if(ids.includes(e.target.id))save()});
 document.querySelectorAll('[data-choice]').forEach(group=>group.addEventListener('click',e=>{const b=e.target.closest('.choice');if(!b)return;group.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');save()}));
 $('copy').addEventListener('click',async()=>{const t=$('resultText').textContent;try{await navigator.clipboard.writeText(t);$('resultStatus').textContent='Roteiro copiado.'}catch(e){const r=document.createRange();r.selectNodeContents($('resultText'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('resultStatus').textContent='Texto selecionado. Pressione Ctrl+C para copiar.'}});
-$('print').addEventListener('click',()=>window.print());
+$('print').addEventListener('click',()=>{saveNow();window.focus();window.print()});
 $('new').addEventListener('click',()=>{if(confirm('Começar uma nova aula? As respostas atuais serão apagadas deste navegador.')){localStorage.removeItem(KEY);ids.forEach(id=>$(id).value='');document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));$('result').classList.remove('active');$('wizard').hidden=false;showStep(1);save()}});
 restore();
+if(!storage()){$('saveStatus').textContent='Atenção: o armazenamento local está indisponível neste contexto. Copie ou imprima seu roteiro antes de fechar.';if($('wizardSaveStatus'))$('wizardSaveStatus').textContent='Armazenamento local indisponível. Copie ou imprima antes de fechar.'}
+window.addEventListener('pagehide',saveNow);
 })();
 </script>
 </body></html>
